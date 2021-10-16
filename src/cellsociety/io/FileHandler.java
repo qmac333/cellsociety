@@ -1,5 +1,5 @@
 package cellsociety.io;
 
-public class IOHandler {
+public class FileHandler {
 
 }

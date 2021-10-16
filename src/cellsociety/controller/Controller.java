@@ -1,8 +1,6 @@
 package cellsociety.controller;
 
 import cellsociety.display.Display;
-import cellsociety.io.IOHandler;
-import cellsociety.logic.Grid;
 import cellsociety.logic.Logic;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -19,15 +17,6 @@ public class Controller {
 
   //The current display class of our program.
   private Display myDisplay;
-
-  //The current IOHandler of our program.
-  private IOHandler myIOHandler;
-
-  //The current algorithm with which the grid should be updated.
-  private LogicController myLogicController;
-
-  //The current grid that should be shown by the Display.
-  private Grid myGrid;
 
   /**
    * Creates a Controller to run a new instance of Cell Society,
