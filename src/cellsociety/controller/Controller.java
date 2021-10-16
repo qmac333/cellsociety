@@ -1,9 +1,10 @@
-package cellsociety;
+package cellsociety.controller;
 
 import cellsociety.display.Display;
 import cellsociety.io.IOHandler;
 import cellsociety.logic.Logic;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 
 /**
  * Organizes and runs the different parts of the Cell Society
@@ -28,7 +29,7 @@ public class Controller {
    *
    */
   public Controller(Scene myScene) {
-
+    myDisplay = new Display(Color.color(100, 0, 100), 10);
   }
 
 
