@@ -3,16 +3,13 @@
 
 ## Team Roles and Responsibilities
 
- * Team Member #1
-
- * Team Member #2
-
- * Team Member #3
-
- * Team Member #4
-
+William Convertino,
+Tim Jang,
+Quentin MacFarlane,
+Alexis Cruz-Ayala
 
 ## Design goals
+
 
 #### What Features are Easy to Add
 

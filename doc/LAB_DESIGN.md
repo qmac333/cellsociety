@@ -1,24 +1,45 @@
 # Cell Society Design Discussion
-### Team Number
-### Names
+### Team Number 14
+William Convertino,
+Tim Jang,
+Quentin MacFarlane,
+Alexis Cruz-Ayala
 
 
 ### Discussion Questions
 
  * How does a Cell know what rules to apply for its simulation?
 
+We will make a subclass for each algorithm that will apply the rules to the grid on each cycle
+of the program.
+
  * How does a Cell know about its neighbors?
+
+In our Grid class we can have a couple methods that check the neighboring
+grids and return their values.
 
  * How can a Cell update itself without affecting its neighbors update?
 
+We can have two different arrays, one for the current pattern and one for the updated pattern. When a cell is updated,
+we can check the current pattern and set the new value in the updated pattern. Once all the updates are completed,
+we can replace the current pattern with the updated one.
+
  * What behaviors does the Grid itself have?
+ 
+It needs to be able to return the state of each cell, update itself and add new elements to the updated array, and
+it needs to be able to get the neighbors of any cells.
 
  * How can a Grid update all the Cells it contains?
 
+We can either iterate over each cell or we can create a map of active cells and only update their neighbors.
+
  * How is configuration information used to set up a simulation?
+
+It tells us the type of algorithm we're using and set the value for many of our program-specific variables (ei. probabilities)
 
  * How is the GUI updated after all the cells have been updated?
 
+The front end can display the updated grid once it's passed at a time interval.
 
 ### Alternate Designs
 
@@ -26,22 +47,16 @@
 
  * Data Structure #1 and File Format #1
 
- * Data Structure #2 and File Format #2
+2D integer array to represent the grid and the items in each cell. Each integer value represents different objects 
+depending on the project. The entire grid (2D array) is passed from the backend to the frontend. 
 
 
 #### Design Idea #2
 
  * Data Structure #1 and File Format #1
 
- * Data Structure #2 and File Format #2
-
-
-#### Design Idea #3
-
-* Data Structure #1 and File Format #1
-
- * Data Structure #2 and File Format #2
-
+We could make an array of cell-block objects, each of which keeps track of its own state and has a mehtod
+to update itself based on the state of adjacent cells.
 
 
 ### CRC Card Classes
