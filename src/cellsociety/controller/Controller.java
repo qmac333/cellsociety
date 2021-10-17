@@ -25,7 +25,7 @@ public class Controller {
    * @param myScene the scene to which the display elements should be added.
    */
   public Controller(Scene myScene) {
-    myDisplay = new Display(myScene, Color.color(50,50,60), 5, (int)myScene.getWidth(), (int)myScene.getHeight() );
+    myDisplay = new Display(myScene, Color.color(50,50,80));
   }
 
 
