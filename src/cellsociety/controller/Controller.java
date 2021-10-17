@@ -1,7 +1,6 @@
 package cellsociety.controller;
 
 import cellsociety.display.Display;
-import cellsociety.io.IOHandler;
 import cellsociety.logic.Grid;
 import cellsociety.logic.Logic;
 import javafx.scene.Scene;
@@ -43,7 +42,7 @@ public class Controller {
   public void update() {
 
     if ((myGrid = myLogicController.getActiveGrid()) == null) {
-      //myDisplay.updateScene(myGrid);
+      myDisplay.updateScene(myGrid);
     }
 
   }
