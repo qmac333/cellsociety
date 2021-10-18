@@ -53,9 +53,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(String.format("%s %s",WINDOW_NAME,CURRENT_VERSION));
-        initializeTimeline();
         initializeWindow(primaryStage);
-        cellSocietyProgram = new Controller(cellSocietyScene);
+        cellSocietyProgram = new Controller(primaryStage);
+        initializeTimeline();
     }
 
     //Creates the JFX Timeline for our program, allowing the cellSocietyProgram to

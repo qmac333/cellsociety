@@ -1,18 +1,19 @@
 package cellsociety.logic;
 
 
-import java.util.Arrays;
+import cellsociety.errors.MissingSimulationArgumentError;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * The GameOfLife logic class for running the backend logic necessary
  * for the GameOfLife game.
  * @author Alexis Cruz
  */
-public class GameOfLife extends Logic {
+public class GameOfLife extends Simulation {
 
-    public GameOfLife(int width, int height) {
-        super(width, height);
+    public GameOfLife(Grid grid, Map<String, String> metadata) throws MissingSimulationArgumentError {
+        super(grid, metadata);
     }
 
     /**

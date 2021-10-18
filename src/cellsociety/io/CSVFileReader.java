@@ -11,10 +11,11 @@ import java.io.IOException;
 /**
  * A class to read CVS files.
  *
+ *
  */
 public class CSVFileReader {
 
-  public static Grid readFile(String fileName) {
+  public static Grid readFile(String fileName) { //TODO: Refactor this
     try{
       // Create an object of filereader
       // class with CSV file as a parameter.
