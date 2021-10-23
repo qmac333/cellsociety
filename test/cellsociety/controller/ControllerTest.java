@@ -25,7 +25,7 @@ class ControllerTest extends DukeApplicationTest {
     @Override
     public void start (Stage stage) {
         stage.setScene(new Scene(new Group()));
-        testController = new Controller(stage, ENGLISH);
+        testController = new Controller(stage);
     }
 
     @Test

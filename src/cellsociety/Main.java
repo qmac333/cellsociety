@@ -2,6 +2,7 @@ package cellsociety;
 
 
 import cellsociety.controller.Controller;
+import java.util.ResourceBundle;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.animation.KeyFrame;
@@ -22,15 +23,12 @@ public class Main extends Application {
     /**The current version of our CellSociety program.**/
     public static final String CURRENT_VERSION = "0.0.1";
 
-    /**The language our program should initialize with is {@value #INIT_LANGUAGE}**/
-    public static final String INIT_LANGUAGE = "English";
-
     /**The name of our program's window is {@value #WINDOW_NAME}**/
     public static final String WINDOW_NAME = "Cell Society";
 
-    /**The default dimension of our program's window is {@value #WINDOW_DEFAULT_WIDTH} by {@value WINDOW_DEFAULT_HEIGHT}**/
-    public static final double WINDOW_DEFAULT_WIDTH = 1280;
-    public static final double WINDOW_DEFAULT_HEIGHT = 720;
+    /**The default dimension of our program's window**/
+    public static final double WINDOW_DEFAULT_WIDTH = Double.parseDouble(ResourceBundle.getBundle("cellsociety.ProgramSettings").getString("DefaultWidth"));
+    public static final double WINDOW_DEFAULT_HEIGHT = Double.parseDouble(ResourceBundle.getBundle("cellsociety.ProgramSettings").getString("DefaultHeight"));
 
     /**The number of frames per second the program should run at is {@value #FPS} **/
     public static final double FPS = 60;
@@ -54,7 +52,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(String.format("%s %s",WINDOW_NAME,CURRENT_VERSION));
         initializeWindow(primaryStage);
-        cellSocietyProgram = new Controller(primaryStage, INIT_LANGUAGE);
+        cellSocietyProgram = new Controller(primaryStage);
         initializeTimeline();
     }
 

@@ -6,12 +6,16 @@ import cellsociety.errors.MissingSimulationArgumentError;
 import cellsociety.errors.UnhandledExceptionError;
 import cellsociety.io.CSVFileReader;
 import cellsociety.io.SIMFileReader;
+import cellsociety.logic.FireSpreading;
 import cellsociety.logic.GameOfLife;
 import cellsociety.logic.Grid;
+import cellsociety.logic.Percolation;
 import cellsociety.logic.Simulation;
+import cellsociety.logic.WaTorWorld;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,8 +30,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class LogicController {
 
-  public static final String TYPE = "Type";
-  public static final String INITIAL_STATE = "InitialStates";
+  public static final ResourceBundle FILE_ARGUMENT_PROPERTIES = ResourceBundle.getBundle("cellsociety.controller.FileArguments");
+  public static final String TYPE = FILE_ARGUMENT_PROPERTIES.getString("Type");
+  public static final String INITIAL_STATE =FILE_ARGUMENT_PROPERTIES.getString("InitialStates");
   public static final int CYCLE_DELAY = 1;
 
   private Runnable cycleRunnable;
@@ -107,6 +112,20 @@ public class LogicController {
     return new GameOfLife(grid, metadata);
   }
 
+  //Returns a new Percolation simulation.
+  public Simulation Percolation(Grid grid, Map<String, String> metadata) {
+    return new Percolation(grid, metadata);
+  }
+
+  //Returns a new FireSpreading simulation.
+  public Simulation FireSpreading(Grid grid, Map<String, String> metadata) {
+    return new FireSpreading(grid, metadata);
+  }
+
+  //Returns a new WaTorWorld simulation.
+  public Simulation Wator(Grid grid, Map<String, String> metadata) {
+    return new WaTorWorld(grid, metadata);
+  }
   /**
    * Returns the current grid state of the currently loaded
    * algorithm.
