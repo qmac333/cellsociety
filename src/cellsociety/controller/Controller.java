@@ -37,15 +37,15 @@ public class Controller {
    *
    * @param myStage the stage on which the display elements should be added.
    */
-  public Controller(Stage myStage, String initialLanguage) {
+  public Controller(Stage myStage) {
     this.myLogicController = new LogicController();
     this.myStage = myStage;
-    initializeDisplay(myStage, initialLanguage);
+    initializeDisplay(myStage);
   }
 
   //Initializes the display components.
-  private void initializeDisplay (Stage myStage, String language) {
-    myDisplay = new Display(myStage, Color.color(.50,.50,.80), language);
+  private void initializeDisplay (Stage myStage) {
+    myDisplay = new Display(myStage, Color.color(.50,.50,.80));
     initializeButtons(myDisplay);
   }
 
