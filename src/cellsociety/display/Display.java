@@ -56,6 +56,10 @@ public class Display {
     protected ResourceBundle propertyResources;
     private int gridLeftOffset;
     private int gridTopOffset;
+    private int cellLength;
+    private double cellOffset;
+    private int buttonOffset;
+    private int buttonOffsetTop;
 
     /**
      * Create display based on given background color and Grid Cell length.
@@ -69,6 +73,10 @@ public class Display {
 
         gridLeftOffset = Integer.parseInt(propertyResources.getString("GRID_LEFT_OFFSET"));
         gridTopOffset = Integer.parseInt(propertyResources.getString("GRID_TOP_OFFSET"));
+        cellLength = Integer.parseInt(propertyResources.getString("CELL_LENGTH"));
+        cellOffset = Double.parseDouble(propertyResources.getString("CELL_OFFSET"));
+        buttonOffset = Integer.parseInt(propertyResources.getString("BUTTON_OFFSET"));
+        buttonOffsetTop = Integer.parseInt(propertyResources.getString("BUTTON_OFFSET_TOP"));
     }
 
     public void initializeGrid(int[][] grid) {
@@ -80,8 +88,8 @@ public class Display {
 
         for(int x = 0; x < grid[0].length; x++) {
             for (int y = 0; y < grid.length; y++) {
-                Rectangle cell = new Rectangle(x*(CELL_LENGTH + CELL_OFFSET) + gridLeftOffset,
-                    y*(CELL_OFFSET + CELL_LENGTH) + gridTopOffset, CELL_LENGTH, CELL_LENGTH);
+                Rectangle cell = new Rectangle(x*(cellLength + cellOffset) + gridLeftOffset,
+                    y*(cellOffset + cellLength) + gridTopOffset, cellLength, cellLength);
                 displayGrid[x][y] = cell;
                 root.getChildren().add(cell);
             }
@@ -119,24 +127,24 @@ public class Display {
     }
 
     public void addButtons(Button saveButton, Button playButton, Button pauseButton, Button resetButton, Button loadButton){
-        loadButton.setLayoutX(BUTTON_OFFSET);
-        loadButton.setLayoutY(BUTTON_OFFSET_TOP);
+        loadButton.setLayoutX(buttonOffset);
+        loadButton.setLayoutY(buttonOffsetTop);
         loadButton.setText("Load");
 
-        playButton.setLayoutX(BUTTON_OFFSET);
-        playButton.setLayoutY(BUTTON_OFFSET_TOP + BUTTON_OFFSET);
+        playButton.setLayoutX(buttonOffset);
+        playButton.setLayoutY(buttonOffsetTop + buttonOffset);
         playButton.setText("Play");
 
-        pauseButton.setLayoutX(BUTTON_OFFSET);
-        pauseButton.setLayoutY(BUTTON_OFFSET_TOP + BUTTON_OFFSET*2);
+        pauseButton.setLayoutX(buttonOffset);
+        pauseButton.setLayoutY(buttonOffsetTop + buttonOffset*2);
         pauseButton.setText("Pause");
 
-        resetButton.setLayoutX(BUTTON_OFFSET);
-        resetButton.setLayoutY(BUTTON_OFFSET_TOP + BUTTON_OFFSET*3);
+        resetButton.setLayoutX(buttonOffset);
+        resetButton.setLayoutY(buttonOffsetTop + buttonOffset*3);
         resetButton.setText("Reset");
 
-        saveButton.setLayoutX(BUTTON_OFFSET);
-        saveButton.setLayoutY(BUTTON_OFFSET_TOP + BUTTON_OFFSET*4);
+        saveButton.setLayoutX(buttonOffset);
+        saveButton.setLayoutY(buttonOffsetTop + buttonOffset*4);
         saveButton.setText("Save");
 
         root.getChildren().add(saveButton);
