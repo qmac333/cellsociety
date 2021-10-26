@@ -1,0 +1,6 @@
+Type=SchellingModel
+Title=Example 1
+Author=Will Convertino
+Threshold=.4
+Description=An example file that can run the Schelling simulation.
+InitialStates=data/schelling/example1.cvs

@@ -1,10 +1,9 @@
 package cellsociety.logic;
 
+import cellsociety.logic.grid.Grid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;

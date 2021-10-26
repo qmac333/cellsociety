@@ -5,6 +5,7 @@ import cellsociety.io.FileHandler;
 import java.io.File;
 import java.nio.file.Paths;
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -58,13 +59,23 @@ public class Controller {
     Button pauseButton = new Button();
     pauseButton.setOnAction(e->myLogicController.pauseSimulation());
     Button resetButton = new Button();
-    resetButton.setOnAction(e->myDisplay.resetGrid());
+    resetButton.setOnAction(e->reset());
     Button loadButton = new Button();
-    loadButton.setOnAction(e->{ try{FileChooser myFileChoser = new FileChooser();
+
+    loadButton.setOnAction(e->{ myLogicController.pauseSimulation();
+      try{FileChooser myFileChoser = new FileChooser();
       myFileChoser.setInitialDirectory(new File(Paths.get(".").toAbsolutePath().normalize() + "/data"));
           loadFile(myFileChoser.showOpenDialog(myStage));} catch(Exception exception) {}});
 
-    myDisplay.addButtons(saveButton, playButton, pauseButton, resetButton, loadButton);
+    Slider speedSlider = new Slider();
+
+    myDisplay.addButtons(saveButton, playButton, pauseButton, resetButton, loadButton, speedSlider);
+    myStage.getScene().setOnMouseClicked(mouseEvent -> {
+      int[] s = myDisplay.changeCell(mouseEvent.getX(), mouseEvent.getY(), myGrid);
+      myGrid[s[0]][s[1]] = myLogicController.getSimulationDefaultValue();
+      System.out.println(mouseEvent.getX());
+      System.out.println(mouseEvent.getY());
+    });
   }
 
   /**
@@ -72,6 +83,14 @@ public class Controller {
    */
   public void saveCurrentGrid() {
     FileHandler.saveFile(myLogicController.getActiveGrid(), "data/game_of_life/user_file.csv");
+  }
+
+  /**
+   * Resets the current simulation.
+   */
+  public void reset() {
+    myLogicController.reset();
+    myDisplay.resetGrid();
   }
 
   /**
@@ -96,9 +115,13 @@ public class Controller {
     myLogicController.update();
     if (myLogicController.getActiveGrid() != null &&
         (myGrid = myLogicController.getActiveGrid().getCurrentGrid()) != null) {
+
       myDisplay.updateScene(myGrid);
     }
 
   }
+
+
+
 
 }

@@ -1,16 +1,11 @@
 package cellsociety.io;
 
 import cellsociety.errors.UnhandledExceptionError;
-import cellsociety.logic.Grid;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
+import cellsociety.logic.grid.Grid;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 

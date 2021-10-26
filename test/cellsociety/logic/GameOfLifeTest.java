@@ -4,7 +4,8 @@ import cellsociety.errors.FileNotFoundError;
 import cellsociety.errors.UnhandledExceptionError;
 import cellsociety.io.CSVFileReader;
 import cellsociety.io.SIMFileReader;
-import org.junit.jupiter.api.BeforeEach;
+import cellsociety.logic.grid.Grid;
+import cellsociety.logic.simulations.GameOfLife;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

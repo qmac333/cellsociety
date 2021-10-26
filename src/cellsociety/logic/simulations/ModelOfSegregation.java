@@ -1,13 +1,15 @@
-package cellsociety.logic;
+package cellsociety.logic.simulations;
 
 import cellsociety.errors.MissingSimulationArgumentError;
 
+import cellsociety.logic.grid.Grid;
+import cellsociety.logic.simulations.Simulation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ModelOfSegregation extends Simulation{
+public class ModelOfSegregation extends Simulation {
 
   private List<int[]> empty;
   private double satisfactionRate;
@@ -24,6 +26,7 @@ public class ModelOfSegregation extends Simulation{
     super(grid, metadata);
     satisfactionRate = Double.parseDouble(metadata.get("SatisfactionRate"));
     empty = findEmptyCells(grid);
+    setDefaultValue(1);
   }
 
   private List findEmptyCells(Grid grid){
@@ -43,22 +46,20 @@ public class ModelOfSegregation extends Simulation{
   private void relocateToEmptyCell(int x, int y){
     getGrid().setCell(empty.get(0)[0], empty.get(0)[1], getGrid().getCell(x, y));
     empty.remove(0);
-    getGrid().setCell(x, y, 0);
+    empty.add(new int[]{x, y});
   }
 
   @Override
   public void update() {
-    empty = findEmptyCells(getGrid());
     for (int x = 0; x < getGrid().getWidth(); x++) {
       for (int y = 0; y < getGrid().getHeight(); y++) {
         if (Collections.frequency(getGrid().getAllNeighbors(x, y), getGrid().getCell(x, y))/8 < satisfactionRate
                 && getGrid().getCell(x, y) != 0) {
           relocateToEmptyCell(x, y);
-        } else {
-          getGrid().setCell(x, y, getGrid().getCell(x, y));
         }
       }
     }
+    Collections.shuffle(empty);
     getGrid().updateGrid();
   }
 }

@@ -1,6 +1,7 @@
-package cellsociety.logic;
+package cellsociety.logic.simulations;
 
 import cellsociety.errors.MissingSimulationArgumentError;
+import cellsociety.logic.grid.Grid;
 import java.util.Map;
 
 /**
@@ -14,6 +15,7 @@ public abstract class Simulation {
 
     //The current grid state of the simulation.
     private Grid grid;
+    private int defaultValue;
 
     //A map containing the simulation's data collected from the simulation's sim files.
     private Map<String, String> metadata;
@@ -49,6 +51,13 @@ public abstract class Simulation {
         return metadata;
     }
 
+    public int getDefaultValue(){
+        return defaultValue;
+    }
+
+    protected void setDefaultValue(int newDefault){
+        defaultValue = newDefault;
+    }
     /**
      * The update function to be run every tick of the game.
      */

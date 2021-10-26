@@ -1,19 +1,26 @@
-package cellsociety.logic;
+package cellsociety.logic.simulations;
+
 
 import cellsociety.errors.MissingSimulationArgumentError;
-
+import cellsociety.logic.grid.Grid;
 import java.util.Collections;
 import java.util.Map;
 
-public class WaTorWorld extends Simulation {
+/**
+ * The GameOfLife logic class for running the backend logic necessary
+ * for the GameOfLife game.
+ * @author Alexis Cruz
+ */
+public class GameOfLife extends Simulation {
 
-    public WaTorWorld(Grid grid, Map<String, String> metadata) throws MissingSimulationArgumentError {
+    public GameOfLife(Grid grid, Map<String, String> metadata) throws MissingSimulationArgumentError {
         super(grid, metadata);
+        setDefaultValue(1);
     }
 
     /**
      * the update function to be run every tick of the game
-     * checks each cell for its neighbors and changes the cell appropriately
+     * checks each cell for its neighbors and changes the cell appropriatly
      */
     public void update() {
         for (int x = 0; x < getGrid().getWidth(); x++) {
@@ -31,4 +38,9 @@ public class WaTorWorld extends Simulation {
         }
         getGrid().updateGrid();
     }
+
+
+
+
+
 }

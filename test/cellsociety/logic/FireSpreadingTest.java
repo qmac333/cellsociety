@@ -2,6 +2,8 @@ package cellsociety.logic;
 
 import cellsociety.io.CSVFileReader;
 import cellsociety.io.SIMFileReader;
+import cellsociety.logic.grid.Grid;
+import cellsociety.logic.simulations.FireSpreading;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

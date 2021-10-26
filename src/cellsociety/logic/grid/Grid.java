@@ -1,4 +1,4 @@
-package cellsociety.logic;
+package cellsociety.logic.grid;
 
 import java.util.ArrayList;
 

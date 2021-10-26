@@ -1,7 +1,8 @@
-package cellsociety.logic;
+package cellsociety.logic.simulations;
 
 import cellsociety.errors.MissingSimulationArgumentError;
 
+import cellsociety.logic.grid.Grid;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
@@ -25,6 +26,7 @@ public class FireSpreading extends Simulation {
         super(grid, metadata);
         this.probCatch = Double.parseDouble(metadata.get("ProbCatch"));
         rand = new Random();
+        setDefaultValue(2);
 
     }
 

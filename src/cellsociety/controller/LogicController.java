@@ -6,8 +6,13 @@ import cellsociety.errors.MissingSimulationArgumentError;
 import cellsociety.errors.UnhandledExceptionError;
 import cellsociety.io.CSVFileReader;
 import cellsociety.io.SIMFileReader;
-import cellsociety.logic.*;
-
+import cellsociety.logic.grid.Grid;
+import cellsociety.logic.simulations.FireSpreading;
+import cellsociety.logic.simulations.GameOfLife;
+import cellsociety.logic.simulations.ModelOfSegregation;
+import cellsociety.logic.simulations.Percolation;
+import cellsociety.logic.simulations.Simulation;
+import cellsociety.logic.simulations.WaTorWorld;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -43,6 +48,9 @@ public class LogicController {
   //Keeps track of whether the simulation is paused.
   private boolean isPaused;
 
+  //The delay between cycles.
+  private int delay;
+
   /**
    * Constructs a new LogicController.
    */
@@ -50,20 +58,33 @@ public class LogicController {
     initializeCycles(CYCLE_DELAY);
   }
 
-  //Initializes a cycle executor to run the simulation's update method at a specified interval.
-  private void initializeCycles(int delay) {
-    this.isPaused = true;
+  /**
+   * Resets the simulation controller and reinitialize the cycles.
+   */
+  public void reset() {
+    this.currentSimulation = null;
+    this.makeRunnable(cycleExecutor);
+  }
+
+  private void makeRunnable(ScheduledExecutorService e) {
     this.cycleRunnable = new Runnable() {
       @Override
-      public void run() {
+      public synchronized void run() {
         if (currentSimulation!=null && !isPaused) {
           currentSimulation.update();
         }
       }
     };
-    cycleExecutor = Executors.newScheduledThreadPool(1);
     cycleExecutor.scheduleAtFixedRate(cycleRunnable, delay, delay, TimeUnit.SECONDS);
   }
+
+  //Initializes a cycle executor to run the simulation's update method at a specified interval.
+  private void initializeCycles(int delay) {
+    this.isPaused = true;
+    this.delay = delay;
+    cycleExecutor = Executors.newScheduledThreadPool(1);
+    makeRunnable(cycleExecutor);
+    }
 
   /**
    * Initializes a new simulation based on a SIM file input.
@@ -143,6 +164,10 @@ public class LogicController {
 
   public void playSimulation() {
     this.isPaused = false;
+  }
+
+  public int getSimulationDefaultValue(){
+    return currentSimulation.getDefaultValue();
   }
 
   public void update() {

@@ -1,6 +1,6 @@
 package cellsociety.io;
 
-import cellsociety.logic.Grid;
+import cellsociety.logic.grid.Grid;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
