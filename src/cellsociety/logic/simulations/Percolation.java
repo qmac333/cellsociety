@@ -29,7 +29,7 @@ public class Percolation extends Simulation {
 
     List<Cell> neighbors = currentGrid.getNeighbors_Four(cell);
 
-    if ((neighbors.get(0).getState() == 1 || neighbors.get(0).getState() == -1) && cell.getState() == 0) {
+    if ((neighbors.get(0).getState() == 1 || cell.getRow() == 0) && cell.getState() == 0) {
       nextGrid.setCellState(cell.getRow(), cell.getColumn(), 1);
     } else {
       nextGrid.setCellState(cell.getRow(), cell.getColumn(), cell.getState());
