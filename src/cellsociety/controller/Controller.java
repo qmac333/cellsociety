@@ -4,7 +4,10 @@ import cellsociety.display.Display;
 import cellsociety.io.FileHandler;
 import java.io.File;
 import java.nio.file.Paths;
+
+import cellsociety.logic.grid.Coordinate;
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -25,11 +28,8 @@ public class Controller {
   //The current display class of our program.
   private Display myDisplay;
 
-  //The current algorithm with which the grid should be updated.
+  //The current algorithm with which the grid_LEGACY should be updated.
   private LogicController myLogicController;
-
-  //The current grid that should be shown by the Display.
-  private int[][] myGrid;
 
   /**
    * Creates a Controller to run a new instance of Cell Society,
@@ -62,13 +62,28 @@ public class Controller {
     Button loadButton = new Button();
     loadButton.setOnAction(e->{ try{FileChooser myFileChoser = new FileChooser();
       myFileChoser.setInitialDirectory(new File(Paths.get(".").toAbsolutePath().normalize() + "/data"));
-          loadFile(myFileChoser.showOpenDialog(myStage));} catch(Exception exception) {}});
+      loadFile(myFileChoser.showOpenDialog(myStage));} catch(Exception exception) {}});
 
-    myDisplay.addButtons(saveButton, playButton, pauseButton, resetButton, loadButton);
+    myStage.getScene().setOnMouseClicked(mouseEvent -> {
+      try {
+      if (myLogicController.getActiveGrid()!=null) {
+        int[] s = myDisplay.changeCell(mouseEvent.getX(), mouseEvent.getY(), myLogicController.getActiveGrid());
+        myLogicController.getCurrentSimulation().getGrid().changeCell(new Coordinate(s[0], s[1]), myLogicController.getSimulationDefaultValue());
+      }} catch (Exception e) {}
+    });
+
+    Slider speedSlider = new Slider(1.0,4.0,1.0);
+    speedSlider.setMajorTickUnit(1);
+    speedSlider.setMinorTickCount(0);
+    speedSlider.snapToTicksProperty().set(true);
+    speedSlider.showTickLabelsProperty().set(true);
+    speedSlider.valueProperty().addListener(e->myLogicController.setSpeed((int)speedSlider.getValue()));
+
+    myDisplay.addButtons(saveButton, playButton, pauseButton, resetButton, loadButton, speedSlider);
   }
 
   /**
-   * Saves the display's grid to a CVS file.
+   * Saves the display's grid_LEGACY to a CVS file.
    */
   public void saveCurrentGrid() {
     FileHandler.saveFile(myLogicController.getActiveGrid(), "data/game_of_life/user_file.csv");
@@ -80,12 +95,12 @@ public class Controller {
    * @param file the SIM file with the simulation's information.
    */
   public void loadFile(File file) {
-      try {
-        myLogicController.initializeFromFile(file);
-      } catch (Exception e) {
-        e.printStackTrace();
-        myDisplay.showError(e);
-      }
+    try {
+      myLogicController.initializeFromFile(file);
+    } catch (Exception e) {
+      e.printStackTrace();
+      myDisplay.showError(e);
+    }
   }
 
   /**
@@ -94,11 +109,9 @@ public class Controller {
   public void update() {
 
     myLogicController.update();
-    if (myLogicController.getActiveGrid() != null &&
-        (myGrid = myLogicController.getActiveGrid().getCurrentGrid()) != null) {
-      myDisplay.updateScene(myGrid);
+    if (myLogicController.getActiveGrid() != null && myLogicController.getActiveGrid() != null) {
+      myDisplay.updateScene(myLogicController.getActiveGrid());
     }
-
   }
 
 }

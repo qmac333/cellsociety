@@ -1,11 +1,10 @@
 package cellsociety.errors;
 
-import java.io.FileNotFoundException;
-
 /**
  * Signals that the user attempted to run a simulation while missing a required argument.
  *
  * @author William Convertino
+ * @since 0.0.1
  */
 public class MissingSimulationArgumentError extends IllegalArgumentException {
 

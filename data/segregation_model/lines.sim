@@ -3,4 +3,4 @@ Title=Lines
 Author=Alexis
 Description=Two lines of 1's and 2's (different agents)
 InitialStates=data/segregation_model/lines.csv
-SatisfactionRate=0.3
+SatisfactionRate=0.01

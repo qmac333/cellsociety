@@ -1,5 +1,5 @@
-SimType=Percolation
+Type=Percolation
 ConfigTitle=Simple Pipe
 Author=Unknown
 Description=A simple pipe flowing from top to bottom
-InitialStates=percolation/simple_pipe.csv
+InitialStates=data/percolation/simple_pipe.csv

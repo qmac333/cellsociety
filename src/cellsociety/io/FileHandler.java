@@ -1,6 +1,7 @@
 package cellsociety.io;
 
-import cellsociety.logic.Grid;
+import cellsociety.logic.grid.Coordinate;
+import cellsociety.logic.grid.Grid;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
@@ -8,11 +9,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Quentin MacFarlane
+ * @since 0.0.2
+ */
 public class FileHandler {
 
     /**
-     * saves the current grid configuration to a CSV file for the user to upload later
-     * @param grid the grid configuration to be saved to a new CSV file
+     * saves the current grid_LEGACY configuration to a CSV file for the user to upload later
+     * @param grid the grid_LEGACY configuration to be saved to a new CSV file
      * @param fileName the file name of the file that will be saved
      */
     public static void saveFile(Grid grid, String fileName) {
@@ -32,10 +37,10 @@ public class FileHandler {
     }
 
     /**
-     * creates the CSV data for the grid configuration
-     * @param grid the grid configuration to be saved in a CSV file
-     * @return a list of string arrays where each string array represents one row of the grid. Each string array is
-     * a list of 1's and 0's except for the first row, which has the dimensions of the grid
+     * creates the CSV data for the grid_LEGACY configuration
+     * @param grid the grid_LEGACY configuration to be saved in a CSV file
+     * @return a list of string arrays where each string array represents one row of the grid_LEGACY. Each string array is
+     * a list of 1's and 0's except for the first row, which has the dimensions of the grid_LEGACY
      */
     private static List<String[]> createCsvData(Grid grid) {
         List<String[]> list = new ArrayList<>();
@@ -44,8 +49,8 @@ public class FileHandler {
 
         String[] eachRow = new String[grid.getWidth()];
         for (int i = 0; i < grid.getHeight(); i++) {
-            for (int j = 0; j < grid.getWidth(); j++) {
-                eachRow[j] = String.valueOf(grid.getCell(i, j));
+            for (int j = 0; j < grid.getWidth();j++) {
+                eachRow[j] = String.valueOf(grid.getCell(i, j).getCurrentState());
             }
             list.add(eachRow);
             eachRow = new String[grid.getWidth()];

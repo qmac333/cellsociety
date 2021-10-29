@@ -1,0 +1,5 @@
+Type=Percolation
+ConfigTitle=Drainage
+Author=William Convertino
+Description=A large draining system.
+InitialStates=data/percolation/drainage.csv

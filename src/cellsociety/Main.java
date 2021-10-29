@@ -21,7 +21,7 @@ import javafx.util.Duration;
 public class Main extends Application {
 
     /**The current version of our CellSociety program.**/
-    public static final String CURRENT_VERSION = "0.0.1";
+    public static final String CURRENT_VERSION = "0.0.2";
 
     /**The name of our program's window is {@value #WINDOW_NAME}**/
     public static final String WINDOW_NAME = "Cell Society";
@@ -35,18 +35,19 @@ public class Main extends Application {
 
     //The Cell Society program to run.
     private Controller cellSocietyProgram;
+    private Controller cellSocietyProgram2;
 
     //The JFX scene of the program.
     private Scene cellSocietyScene;
 
     /**
      * Starts our program as a JFX Application, giving the window a title
-     * that contains our program name and the current version. Also initializes
-     * our CellSociety program with a default language of {@value #INIT_LANGUAGE},
-     * running at {@value #FPS} frames per second.
+     * that contains our program name and the current version.
+     *
+     * Runs at {@value #FPS} frames per second.
      *
      * @param primaryStage the JFX stage of our application.
-     * @throws Exception if there is some error during start-up.
+ * @throws Exception if there is some error during start-up.
      */
     @Override
     public void start(Stage primaryStage) throws Exception {

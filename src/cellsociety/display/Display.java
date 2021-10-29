@@ -3,51 +3,39 @@ package cellsociety.display;
 import cellsociety.errors.FileNotFoundError;
 import cellsociety.errors.InvalidSimulationTypeError;
 import cellsociety.errors.MissingSimulationArgumentError;
-import cellsociety.io.FilePickerEventHandler;
-import java.io.File;
-import java.util.*;
-import java.nio.file.Paths;
 
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.scene.Parent;
+import java.util.*;
+
+import cellsociety.logic.grid.Cell;
+import cellsociety.logic.grid.Grid;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
+import javafx.scene.control.Slider;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import org.w3c.dom.css.Rect;
 
-
-public class Display {
+/**
+ * @author Tim Jang
+ * @author William Convertino
+ * @author Quentin MacFarlane
+ * @author Alexis Cruz-Ayala
+ */
+public abstract class Display {
 
     public static final String DEFAULT_RESOURCE_PACKAGE = "cellsociety.resources.";
     public static final String DEFAULT_RESOURCE_FOLDER =
             "/" + DEFAULT_RESOURCE_PACKAGE.replace(".", "/");
 
     public static Map<Integer, Color> COLOR_MAP = new HashMap();
+
     static {
         COLOR_MAP.put(0, Color.WHITE);
         COLOR_MAP.put(1, Color.BLUE);
         COLOR_MAP.put(2, Color.RED);
     }
-    public final static int TOP_OFFSET_GRID = 50;
-    public final static double CELL_LENGTH = 29;
-    public final static double CELL_OFFSET = 1.5;
-    public final static int BUTTON_OFFSET = 50;
-    public final static int BUTTON_OFFSET_TOP = 30;
+
     private Stage myStage;
     private Rectangle[][] displayGrid;
 
@@ -64,13 +52,12 @@ public class Display {
     /**
      * Create display based on given background color and Grid Cell length.
      */
-    public Display (Stage myStage, Color background) {
+    public Display(Stage myStage, Color background) {
         this.myStage = myStage;
-        root = (Group)myStage.getScene().getRoot();
+        root = (Group) myStage.getScene().getRoot();
         myStage.getScene().setFill(background);
         myResources = ResourceBundle.getBundle(DEFAULT_RESOURCE_PACKAGE + ResourceBundle.getBundle("cellsociety.ProgramSettings").getString("Language"));
         propertyResources = ResourceBundle.getBundle("cellsociety.display.Display");
-
         gridLeftOffset = Integer.parseInt(propertyResources.getString("GRID_LEFT_OFFSET"));
         gridTopOffset = Integer.parseInt(propertyResources.getString("GRID_TOP_OFFSET"));
         cellLength = Integer.parseInt(propertyResources.getString("CELL_LENGTH"));
@@ -79,21 +66,23 @@ public class Display {
         buttonOffsetTop = Integer.parseInt(propertyResources.getString("BUTTON_OFFSET_TOP"));
     }
 
-    public void initializeGrid(int[][] grid) {
+    public void initializeGrid(Grid grid) {
         resetGrid();
-        if (grid == null || grid.length == 0 || grid[0].length == 0) {
+
+        if (grid == null || grid.getHeight() == 0 || grid.getWidth() == 0) {
             return;
         }
-        displayGrid = new Rectangle[grid.length][grid[0].length];
+        displayGrid = new Rectangle[grid.getHeight()][grid.getWidth()];
 
-        for(int x = 0; x < grid[0].length; x++) {
-            for (int y = 0; y < grid.length; y++) {
-                Rectangle cell = new Rectangle(x*(cellLength + cellOffset) + gridLeftOffset,
-                    y*(cellOffset + cellLength) + gridTopOffset, cellLength, cellLength);
+        for (int x = 0; x < grid.getHeight(); x++) {
+            for (int y = 0; y < grid.getWidth(); y++) {
+                Rectangle cell = new Rectangle(x * (cellLength + cellOffset) + gridLeftOffset,
+                        y * (cellOffset + cellLength) + gridTopOffset, cellLength, cellLength);
                 displayGrid[x][y] = cell;
                 root.getChildren().add(cell);
             }
         }
+
         updateScene(grid);
     }
 
@@ -103,9 +92,9 @@ public class Display {
 
     public void resetGrid() {
         if (displayGrid != null) {
-            for (int i = 0; i < displayGrid.length; i++) {
+            for (Rectangle[] rectangles : displayGrid) {
                 for (int j = 0; j < displayGrid[0].length; j++) {
-                    root.getChildren().remove(displayGrid[i][j]);
+                    root.getChildren().remove(rectangles[j]);
                 }
             }
         }
@@ -113,20 +102,38 @@ public class Display {
 
     /**
      * Update Scene
+     * @param grid
      */
-    public void updateScene (int[][] grid) {
-        if (displayGrid == null || grid.length != displayGrid.length) {
+    public void updateScene(Grid grid) {
+        if (displayGrid == null || grid.getHeight() != displayGrid.length) {
             initializeGrid(grid);
             return;
         }
-        for(int i = 0; i < grid.length; i++){
-            for(int j = 0; j < grid.length; j++){
-                displayGrid[i][j].setFill(COLOR_MAP.get(grid[i][j]));
+        for (int r = 0; r < grid.getHeight(); r++) {
+            for (int c = 0; c < grid.getWidth(); c++) {
+                displayGrid[r][c].setFill(COLOR_MAP.get(grid.getCell(r,c)));
             }
         }
     }
 
-    public void addButtons(Button saveButton, Button playButton, Button pauseButton, Button resetButton, Button loadButton){
+    public int[] changeCell(double mouseX, double mouseY, Grid grid) {
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                double corrX = x * (cellLength + cellOffset) + gridLeftOffset;
+                double corrY = y * (cellOffset + cellLength) + gridTopOffset;
+                if(((corrX + cellLength) >= mouseX
+                        && (corrY + cellLength) >= mouseY
+                        && corrX <= mouseX + cellLength
+                        && (corrY <= (mouseY + cellLength)))){
+                    int[] s = new int[]{x, y};
+                    return s;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void addButtons(Button saveButton, Button playButton, Button pauseButton, Button resetButton, Button loadButton, Slider speedSlider) {
         loadButton.setLayoutX(buttonOffset);
         loadButton.setLayoutY(buttonOffsetTop);
         loadButton.setText("Load");
@@ -136,22 +143,27 @@ public class Display {
         playButton.setText("Play");
 
         pauseButton.setLayoutX(buttonOffset);
-        pauseButton.setLayoutY(buttonOffsetTop + buttonOffset*2);
+        pauseButton.setLayoutY(buttonOffsetTop + buttonOffset * 2);
         pauseButton.setText("Pause");
 
         resetButton.setLayoutX(buttonOffset);
-        resetButton.setLayoutY(buttonOffsetTop + buttonOffset*3);
+        resetButton.setLayoutY(buttonOffsetTop + buttonOffset * 3);
         resetButton.setText("Reset");
 
         saveButton.setLayoutX(buttonOffset);
-        saveButton.setLayoutY(buttonOffsetTop + buttonOffset*4);
+        saveButton.setLayoutY(buttonOffsetTop + buttonOffset * 4);
         saveButton.setText("Save");
+
+        speedSlider.setLayoutX(buttonOffset);
+        speedSlider.setLayoutY(buttonOffsetTop + buttonOffset * 5);
+        speedSlider.setShowTickLabels(true);
 
         root.getChildren().add(saveButton);
         root.getChildren().add(playButton);
         root.getChildren().add(pauseButton);
         root.getChildren().add(resetButton);
         root.getChildren().add(loadButton);
+        root.getChildren().add(speedSlider);
     }
 
     public void showError(Exception e) {
@@ -160,13 +172,13 @@ public class Display {
         String errorMessage = myResources.getString(errorTitle);
         if (e instanceof FileNotFoundError) {
             errorTitle = "FileNotFoundError";
-            errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((FileNotFoundError)e).getFilename());
+            errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((FileNotFoundError) e).getFilename());
         } else if (e instanceof InvalidSimulationTypeError) {
             errorTitle = "InvalidSimulationTypeError";
-            errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((InvalidSimulationTypeError)e).getType());
+            errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((InvalidSimulationTypeError) e).getType());
         } else if (e instanceof MissingSimulationArgumentError) {
             errorTitle = "MissingSimulationArgumentError";
-            errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((MissingSimulationArgumentError)e).getArgument());
+            errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((MissingSimulationArgumentError) e).getArgument());
         }
         alert.setTitle(errorTitle);
         alert.setContentText(errorMessage);

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
  * Signals that the user attempted to open a file that could not be found.
  *
  * @author William Convertino
+ * @since 0.0.1
  */
 public class FileNotFoundError extends FileNotFoundException {
 

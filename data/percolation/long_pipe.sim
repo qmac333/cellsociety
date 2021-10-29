@@ -1,6 +1,5 @@
 Type=Percolation
-Title=Long Pipe
+ConfigTitle=Long Pipe
 Author=Former Student
 Description=A long, more complex, pipe flowing from top to bottom
-InitialStates=percolation/long_pipe.csv
-StateColors=FFFFFF,0000FF,000000
+InitialStates=data/percolation/long_pipe.csv

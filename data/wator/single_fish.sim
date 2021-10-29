@@ -1,0 +1,8 @@
+Type=Wator
+Title=Single Fish
+Author=Quentin MacFarlane
+Description=There is a single fish in the middle of a 3X3 grid
+InitialStates=data/wator/single_fish.csv
+InitialEnergy=3
+ReproductionTime=2
+EnergyPerFish=2

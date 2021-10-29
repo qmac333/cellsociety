@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
  * Signals that the user attempted to run a non-supported simulation type.
  *
  * @author William Convertino
+ * @since 0.0.1
  */
 public class InvalidSimulationTypeError extends Exception {
 
