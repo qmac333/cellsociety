@@ -1,6 +1,7 @@
 package cellsociety.controller;
 
 import cellsociety.display.Display;
+import cellsociety.display.RectangleDisplay;
 import cellsociety.io.FileHandler;
 import java.io.File;
 import java.nio.file.Paths;
@@ -45,7 +46,7 @@ public class Controller {
 
   //Initializes the display components.
   private void initializeDisplay (Stage myStage) {
-    myDisplay = new Display(myStage, Color.color(.50,.50,.80));
+    myDisplay = new RectangleDisplay(myStage, Color.color(.50,.50,.80));
     initializeButtons(myDisplay);
   }
 
@@ -115,8 +116,8 @@ public class Controller {
   public void update() {
 
     myLogicController.update();
-    if (myLogicController.getActiveGrid() != null && myLogicController.getActiveGrid() != null) {
-      myDisplay.updateScene(myLogicController.getActiveGrid());
+    if (myLogicController.getActiveGrid() != null) {
+      myDisplay.updateScene(myLogicController.getActiveGrid().getCellsToUpdate());
     }
   }
 

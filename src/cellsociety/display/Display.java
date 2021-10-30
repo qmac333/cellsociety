@@ -23,7 +23,7 @@ import javafx.scene.shape.Rectangle;
  * @author Quentin MacFarlane
  * @author Alexis Cruz-Ayala
  */
-public class Display {
+public abstract class Display {
 
     public static final String DEFAULT_RESOURCE_PACKAGE = "cellsociety.resources.";
     public static final String DEFAULT_RESOURCE_FOLDER =
@@ -40,15 +40,15 @@ public class Display {
     private Stage myStage;
     private Rectangle[][] displayGrid;
 
-    private Group root;
+    protected Group root;
     protected ResourceBundle myResources;
     protected ResourceBundle propertyResources;
-    private int gridLeftOffset;
-    private int gridTopOffset;
-    private int cellLength;
-    private double cellOffset;
-    private int buttonOffset;
-    private int buttonOffsetTop;
+    protected int gridLeftOffset;
+    protected int gridTopOffset;
+    protected int cellLength;
+    protected double cellOffset;
+    protected int buttonOffset;
+    protected int buttonOffsetTop;
 
     /**
      * Create display based on given background color and Grid Cell length.
@@ -67,55 +67,16 @@ public class Display {
         buttonOffsetTop = Integer.parseInt(propertyResources.getString("BUTTON_OFFSET_TOP"));
     }
 
-    public void initializeGrid(Grid grid) {
-        resetGrid();
 
-        if (grid == null || grid.getHeight() == 0 || grid.getWidth() == 0) {
-            return;
-        }
-        displayGrid = new Rectangle[grid.getHeight()][grid.getWidth()];
-
-        for (int x = 0; x < grid.getHeight(); x++) {
-            for (int y = 0; y < grid.getWidth(); y++) {
-                Rectangle cell = new Rectangle(x * (cellLength + cellOffset) + gridLeftOffset,
-                        y * (cellOffset + cellLength) + gridTopOffset, cellLength, cellLength);
-                displayGrid[x][y] = cell;
-                root.getChildren().add(cell);
-            }
-        }
-
-        updateScene(grid);
-    }
+    public abstract void initializeGrid(List<Cell> cells);
 
     /**
      * Removes all elements of the displayGrid from the display.
      */
 
-    public void resetGrid() {
-        if (displayGrid != null) {
-            for (Rectangle[] rectangles : displayGrid) {
-                for (int j = 0; j < displayGrid[0].length; j++) {
-                    root.getChildren().remove(rectangles[j]);
-                }
-            }
-        }
-    }
+    public abstract void resetGrid();
 
-    /**
-     * Update Scene
-     * @param grid
-     */
-    public void updateScene(Grid grid) {
-        if (displayGrid == null || grid.getHeight() != displayGrid.length) {
-            initializeGrid(grid);
-            return;
-        }
-        for (int r = 0; r < grid.getHeight(); r++) {
-            for (int c = 0; c < grid.getWidth(); c++) {
-                displayGrid[r][c].setFill(COLOR_MAP.get(grid.getCell(r,c)));
-            }
-        }
-    }
+    public abstract void updateScene(List<Cell> cells);
 
     public int[] changeCell(double mouseX, double mouseY, Grid grid) {
         for (int x = 0; x < grid.getWidth(); x++) {
@@ -152,7 +113,7 @@ public class Display {
             errorTitle = "FileNotFoundError";
             errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((FileNotFoundError) e).getFilename());
         } else if (e instanceof InvalidSimulationTypeError) {
-            errorTitle = "InvalidSimulationTypeError";
+            errorTitle = "InvalidSiinitializegridmulationTypeError";
             errorMessage = String.format("%s %s", myResources.getString(errorTitle), ((InvalidSimulationTypeError) e).getType());
         } else if (e instanceof MissingSimulationArgumentError) {
             errorTitle = "MissingSimulationArgumentError";

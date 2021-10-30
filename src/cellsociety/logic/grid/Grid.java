@@ -170,5 +170,4 @@ public abstract class Grid {
     this.width = width;
   }
 
-
 }

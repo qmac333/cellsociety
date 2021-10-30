@@ -16,6 +16,7 @@ import java.util.Map;
  * than the satisfaction rate set by the user.
  *
  * @autahor William Convertino
+ * @author Tim Jang
  *
  * @since 0.0.2
  */
