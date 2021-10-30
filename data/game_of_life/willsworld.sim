@@ -3,3 +3,6 @@ Title=Wills World
 Author=William Convertino
 Description=An interesting pattern.
 InitialStates=data/game_of_life/willsworld.csv
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=SquareShapeManager

@@ -10,8 +10,7 @@ import cellsociety.io.SIMFileReader;
 import cellsociety.logic.grid.Grid;
 import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
 import cellsociety.logic.shapes.ShapeManager;
-import cellsociety.logic.simulations.GameOfLife;
-import cellsociety.logic.simulations.Simulation;
+import cellsociety.logic.simulations.*;
 
 
 import java.io.File;
@@ -133,22 +132,22 @@ public class LogicController {
     public Simulation GameOfLife(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) {
         return new GameOfLife(grid, np, metadata);
     }
-//
-//  //Returns a new ModelOfSegregation simulation.
-//  public Simulation ModelOfSegregation(int[][] grid, Map<String, String> metadata) {
-//    return new ModelOfSegregation(grid, metadata);
-//  }
-//
-//  //Returns a new Percolation simulation.
-//  public Simulation Percolation(int[][] grid, Map<String, String> metadata) {
-//    return new Percolation(grid, metadata);
-//  }
-//
-//  //Returns a new FireSpreading simulation.
-//  public Simulation FireSpreading(int[][] grid, Map<String, String> metadata) {
-//    return new FireSpreading(grid, metadata);
-//  }
-//
+
+  //Returns a new ModelOfSegregation simulation.
+  public Simulation ModelOfSegregation(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) {
+    return new ModelOfSegregation(grid,np, metadata);
+  }
+
+  //Returns a new Percolation simulation.
+  public Simulation Percolation(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) {
+    return new Percolation(grid, np, metadata);
+  }
+
+  //Returns a new FireSpreading simulation.
+  public Simulation FireSpreading(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) {
+    return new FireSpreading(grid, np, metadata);
+  }
+
 //  //Returns a new WaTorWorld simulation.
 //  public Simulation Wator(int[][] grid, Map<String, String> metadata) {
 //    return new WaTorWorld(grid, metadata);

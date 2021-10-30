@@ -5,6 +5,7 @@ import cellsociety.logic.grid.Cell;
 import cellsociety.logic.grid.Grid;
 import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
@@ -47,7 +48,15 @@ public class FireSpreading extends Simulation {
      */
     @Override
     protected void updateNextGridFromCell(Cell cell) {
-        if (rand.nextDouble() < probCatch * Collections.frequency(getGrid().getNeighbors(cell, getNeighborhoodPattern()), 2) && cell.getCurrentState() == 1) {
+        System.out.println(Collections.frequency(getGrid().getNeighbors(cell, getNeighborhoodPattern()), 2));
+        ArrayList neighborStates = new ArrayList();
+        for (Cell c : getGrid().getNeighbors(cell, getNeighborhoodPattern())){
+            if(c != null){
+                neighborStates.add(c.getCurrentState());
+            }
+
+        }
+        if (rand.nextDouble() < probCatch * Collections.frequency(neighborStates, 2) && cell.getCurrentState() == 1) {
             getGrid().changeCell(cell,  2);
         } else if (cell.getCurrentState() == 2) {
             getGrid().changeCell(cell,  0);

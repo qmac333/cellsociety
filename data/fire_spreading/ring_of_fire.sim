@@ -4,3 +4,6 @@ Author=Alexis
 Description=The border of the grid is surrounded by fire
 InitialStates=data/fire_spreading/ring_of_fire.csv
 ProbCatch=0.3
+GridType=FiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=SquareShapeManager

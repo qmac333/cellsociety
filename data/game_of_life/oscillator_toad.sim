@@ -3,4 +3,6 @@ Title=Oscillator Toad
 Author=Alexis
 Description=Oscillator with a period of 2 generations. "OOO he do be hoppin" - Alexis :D
 InitialStates=data/game_of_life/oscillator_toad.csv
-
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=SquareShapeManager
