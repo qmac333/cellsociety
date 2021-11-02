@@ -1,0 +1,11 @@
+Type=Wator
+Title=Big Ocean
+Author=William Convertino
+Description=A larger board.
+InitialStates=data/wator/big_ocean.csv
+InitialEnergy=10
+ReproductionTime=4
+EnergyPerFish=20
+GridType=InfiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Hexagon

@@ -3,11 +3,13 @@ package cellsociety.logic.simulations;
 import cellsociety.errors.MissingSimulationArgumentError;
 import cellsociety.logic.grid.Cell;
 import cellsociety.logic.grid.Grid;
+import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
+
 import java.util.Map;
 
 /**
- * The base simulation class for the individual simulation types. Contains a grid and functionality to
- * update the grid based on the subclass' algorithms.
+ * The base simulation class for the individual simulation types. Contains a grid_LEGACY and functionality to
+ * update the grid_LEGACY based on the subclass' algorithms.
  *
  * @author Alexis Cruz
  * @author William Convertino
@@ -16,11 +18,14 @@ import java.util.Map;
  */
 public abstract class Simulation {
 
-    //The current grid state of the simulation.
-    protected Grid currentGrid;
+
+
+    //The neighborhood pattern of this simulation.
+    private NeighborhoodPattern neighborhoodPattern;
+
+    private Grid myGrid;
     private int defaultValue;
-    //The grid to be set next in the simulation.
-    protected Grid nextGrid;
+
 
     //A map containing the simulation's data collected from the simulation's sim files.
     private Map<String, String> metadata;
@@ -29,42 +34,34 @@ public abstract class Simulation {
      * Constructs a new Simulation with a specified starting Grid and a Map of
      * simulation-specific data values.
      *
-     * @param grid the starting grid of the simulation.
+     * @param grid the starting grid_LEGACY of the simulation.
      * @param metadata the user-specified values used by the simulation.
      * @throws MissingSimulationArgumentError if the metadata is missing a required argument for the simulation.
      */
-    public Simulation(int[][] grid, Map<String, String> metadata) throws MissingSimulationArgumentError {
+    public Simulation(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) throws MissingSimulationArgumentError {
         makeGrid(grid);
+        this.neighborhoodPattern = np;
         this.metadata = metadata;
     }
 
     /**
-     * Initializes the grids values using a 2d integer array.
+     * Initializes the grid values using a 2d integer array.
      *
-     * @param myGridArray the array of values to initialize with.
+     * @param newGrid the array of values to initialize with.
      */
-    protected void makeGrid(int[][] myGridArray) {
-        this.currentGrid = new Grid(myGridArray);
+    protected void makeGrid(Grid newGrid) {
+        this.myGrid = newGrid;
     }
 
     /**
-     * Returns the current grid state of the simulation.
+     * Returns the current grid_LEGACY state of the simulation.
      *
-     * @return the current grid state of the simulation.
+     * @return the current grid_LEGACY state of the simulation.
      */
     public Grid getGrid() {
-        return currentGrid;
+        return myGrid;
     }
 
-    /**
-     * Returns a 2D array of integers representing the
-     * current states of the cells.
-     *
-     * @return
-     */
-    public int[][] getStateArray() {
-        return currentGrid.getCellStates();
-    }
 
     /**
      * Returns the metadata of the simulation.
@@ -83,20 +80,21 @@ public abstract class Simulation {
     protected abstract void updateNextGridFromCell (Cell cell);
 
     /**
-     *  Updates each cell in the grid using the updateCell method.
+     *  Updates each cell in the grid_LEGACY using the updateCell method.
      */
     public void update() {
-        this.nextGrid = new Grid(currentGrid.getHeight(), currentGrid.getWidth());
-        for (int r = 0; r < currentGrid.getHeight(); r++) {
-            for (int c = 0; c < currentGrid.getWidth(); c++) {
-                updateNextGridFromCell(currentGrid.getCell(r,c));
-            }
+
+        for (Cell c: myGrid.getCellsToUpdate()) {
+            updateNextGridFromCell(c);
         }
-        this.currentGrid = this.nextGrid;
-        currentGrid.getCurrentEmptyCells();
+        myGrid.updateCells();
+
     }
 
 
+    public NeighborhoodPattern getNeighborhoodPattern() {
+        return neighborhoodPattern;
+    }
 
     public int getDefaultValue(){
         return defaultValue;
@@ -105,5 +103,6 @@ public abstract class Simulation {
     protected void setDefaultValue(int newDefault){
         defaultValue = newDefault;
     }
+
 
 }

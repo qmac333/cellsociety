@@ -3,3 +3,6 @@ ConfigTitle=Simple Pipe
 Author=Unknown
 Description=A simple pipe flowing from top to bottom
 InitialStates=data/percolation/simple_pipe.csv
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Square

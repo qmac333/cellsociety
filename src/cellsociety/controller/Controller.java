@@ -1,13 +1,19 @@
 package cellsociety.controller;
 
-import cellsociety.display.Display;
+import cellsociety.Main;
+import cellsociety.display.*;
+import cellsociety.errors.InvalidSimulationTypeError;
 import cellsociety.io.FileHandler;
 import java.io.File;
-import java.nio.file.Paths;
-import javafx.scene.control.Button;
-import javafx.scene.control.Slider;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cellsociety.logic.grid.Coordinate;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -16,6 +22,7 @@ import javafx.stage.Stage;
  * handling to communicate with each other.
  *
  * @author William Convertino
+ * @author Tim Jang
  * @since 0.0.1
  */
 public class Controller {
@@ -26,8 +33,12 @@ public class Controller {
   //The current display class of our program.
   private Display myDisplay;
 
-  //The current algorithm with which the grid should be updated.
+  //The main logic controller.
   private LogicController myLogicController;
+
+  //The current algorithm with which the grid_LEGACY should be updated.
+  private List<LogicController> myLogicControllers;
+
 
   /**
    * Creates a Controller to run a new instance of Cell Society,
@@ -36,55 +47,37 @@ public class Controller {
    * @param myStage the stage on which the display elements should be added.
    */
   public Controller(Stage myStage) {
-    this.myLogicController = new LogicController();
     this.myStage = myStage;
-    initializeDisplay(myStage);
+    this.myLogicControllers = new ArrayList<>();
+    this.myLogicController = new LogicController();
+    loadNewDisplay(new File("data/game_of_life/default.sim"));
   }
 
   //Initializes the display components.
-  private void initializeDisplay (Stage myStage) {
-    myDisplay = new Display(myStage, Color.color(.50,.50,.80));
-    initializeButtons(myDisplay);
+  private Display initializeDisplay (String displayType, Stage myStage) throws InvalidSimulationTypeError {
+    try {
+
+      Display newDisplay = (Display) Class.forName("cellsociety.display." + displayType + "Display")
+          .getConstructor(Stage.class, Color.class)
+          .newInstance(myStage, Color.color(.50, .50, .80));
+      return newDisplay;
+    } catch (Exception e) {
+      throw new InvalidSimulationTypeError(displayType);
+    }
   }
 
   //Initializes all the buttons in the display.
-  private void initializeButtons(Display myDisplay) {
-    Button saveButton = new Button();
-    saveButton.setOnAction(e->saveCurrentGrid());
-    Button playButton = new Button();
-    playButton.setOnAction(e->myLogicController.playSimulation());
-    Button pauseButton = new Button();
-    pauseButton.setOnAction(e->myLogicController.pauseSimulation());
-    Button resetButton = new Button();
-    resetButton.setOnAction(e->myDisplay.resetGrid());
-    Button loadButton = new Button();
-    loadButton.setOnAction(e->{ try{FileChooser myFileChoser = new FileChooser();
-      myFileChoser.setInitialDirectory(new File(Paths.get(".").toAbsolutePath().normalize() + "/data"));
-      loadFile(myFileChoser.showOpenDialog(myStage));} catch(Exception exception) {}});
+  private void initializeButtons(Display display, LogicController logicController) {
+    ButtonManager.initializeButtons(display, logicController, this, myStage);
 
-    myStage.getScene().setOnMouseClicked(mouseEvent -> {
-      try {
-      if (myLogicController.getActiveGrid()!=null) {
-        int[] s = myDisplay.changeCell(mouseEvent.getX(), mouseEvent.getY(), myLogicController.getActiveGrid());
-        myLogicController.getCurrentSimulation().getGrid().setCellState(s[0], s[1], myLogicController.getSimulationDefaultValue());
-      }} catch (Exception e) {}
-    });
 
-    Slider speedSlider = new Slider(1.0,4.0,1.0);
-    speedSlider.setMajorTickUnit(1);
-    speedSlider.setMinorTickCount(0);
-    speedSlider.snapToTicksProperty().set(true);
-    speedSlider.showTickLabelsProperty().set(true);
-    speedSlider.valueProperty().addListener(e->myLogicController.setSpeed((int)speedSlider.getValue()));
-
-    myDisplay.addButtons(saveButton, playButton, pauseButton, resetButton, loadButton, speedSlider);
   }
 
   /**
    * Saves the display's grid to a CVS file.
    */
-  public void saveCurrentGrid() {
-    FileHandler.saveFile(myLogicController.getActiveGrid(), "data/game_of_life/user_file.csv");
+  public void saveCurrentGrid(LogicController logicController) {
+    FileHandler.saveFile(logicController.getActiveGrid(), myStage);
   }
 
   /**
@@ -92,11 +85,33 @@ public class Controller {
    *
    * @param file the SIM file with the simulation's information.
    */
-  public void loadFile(File file) {
+  public void loadFile(File file, LogicController logicController, Stage stage) {
     try {
-      myLogicController.initializeFromFile(file);
+      logicController.resetDisplay();
+      logicController.initializeFromFile(file);
+      logicController.setDisplay(initializeDisplay( logicController.getMetaData().get("Shape"), stage));
+
     } catch (Exception e) {
-      e.printStackTrace();
+      myDisplay.showError(e);
+    }
+  }
+
+  public void loadNewDisplay(File file) {
+    try {
+      LogicController newLogicController = new LogicController();
+      newLogicController.initializeFromFile(file);
+      String shape = newLogicController.getMetaData().get("Shape");
+      Stage newStage = new Stage();
+      newStage.setScene(new Scene(new Group(), Main.WINDOW_DEFAULT_WIDTH, Main.WINDOW_DEFAULT_HEIGHT));
+      newStage.initModality(Modality.WINDOW_MODAL);
+      newStage.setTitle(Main.WINDOW_NAME);
+      Display newDisplay = initializeDisplay(shape, newStage);
+      initializeButtons(newDisplay, newLogicController);
+      newLogicController.setDisplay(newDisplay);
+      myLogicControllers.add(newLogicController);
+      newStage.show();
+      //initializeButtons(myDisplay);
+    } catch (Exception e) {
       myDisplay.showError(e);
     }
   }
@@ -105,11 +120,10 @@ public class Controller {
    *  Executes every program tick to allow the Simulation and Display to update.
    */
   public void update() {
-
-    myLogicController.update();
-    if (myLogicController.getActiveGrid() != null && myLogicController.getActiveGrid() != null) {
-      myDisplay.updateScene(myLogicController.getActiveGrid());
+    for (LogicController lc: myLogicControllers) {
+      lc.update();
     }
+
   }
 
 }

@@ -4,3 +4,6 @@ Author=William Convertino
 Description=A lone state 2 cell makes its way through an unkind and desolate world. Its only solace can be found in isolation.
 InitialStates=data/segregation_model/lonely.csv
 SatisfactionRate=0.01
+GridType=FiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=Square

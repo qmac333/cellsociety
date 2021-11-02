@@ -3,3 +3,6 @@ ConfigTitle=Long Pipe
 Author=Former Student
 Description=A long, more complex, pipe flowing from top to bottom
 InitialStates=data/percolation/long_pipe.csv
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Square

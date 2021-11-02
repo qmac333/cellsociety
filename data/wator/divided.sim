@@ -1,0 +1,11 @@
+Type=Wator
+Title=Divided to Start
+Author=Former Student
+Description=Predators on one side, prey on the other
+InitialStates=data/wator/divided.csv
+InitialEnergy=3
+ReproductionTime=2
+EnergyPerFish=2
+GridType=FiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=Square

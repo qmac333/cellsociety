@@ -1,8 +1,11 @@
 package cellsociety.logic.simulations;
 
 import cellsociety.errors.MissingSimulationArgumentError;
-
 import cellsociety.logic.grid.Cell;
+import cellsociety.logic.grid.Grid;
+import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 
@@ -26,14 +29,14 @@ public class FireSpreading extends Simulation {
      * Constructs a new Simulation with a specified starting Grid and a Map of simulation-specific data
      * values.
      *
-     * @param grid     the starting grid of the simulation.
+     * @param grid     the starting grid_LEGACY of the simulation.
      * @param metadata the user-specified values used by the simulation.
      * @throws MissingSimulationArgumentError if the metadata is missing a required argument for the
      *                                        simulation.
      */
-    public FireSpreading(int[][] grid, Map<String, String> metadata)
+    public FireSpreading(Grid grid, NeighborhoodPattern np, Map<String, String> metadata)
             throws MissingSimulationArgumentError {
-        super(grid, metadata);
+        super(grid, np, metadata);
         this.probCatch = Double.parseDouble(metadata.get("ProbCatch"));
         rand = new Random();
         setDefaultValue(2);
@@ -44,31 +47,20 @@ public class FireSpreading extends Simulation {
      */
     @Override
     protected void updateNextGridFromCell(Cell cell) {
-        if (rand.nextDouble() < probCatch * getNumAdjacentFires(cell) && cell.getState() == 1) {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), 2);
-        } else if (cell.getState() == 2) {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), 0);
+        System.out.println(Collections.frequency(getGrid().getNeighbors(cell, getNeighborhoodPattern()), 2));
+        ArrayList neighborStates = new ArrayList();
+        for (Cell c : getGrid().getNeighbors(cell, getNeighborhoodPattern())){
+            if(c != null){
+                neighborStates.add(c.getCurrentState());
+            }
+
+        }
+        if (rand.nextDouble() < probCatch * Collections.frequency(neighborStates, 2) && cell.getCurrentState() == 1) {
+            getGrid().changeCell(cell,  2, cell.getAltStates());
+        } else if (cell.getCurrentState() == 2) {
+            getGrid().changeCell(cell,  0, cell.getAltStates());
         } else {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), cell.getState());
+            getGrid().changeCell(cell,  cell.getCurrentState(), cell.getAltStates());
         }
     }
-
-    //Returns the number of adjacent fires to a cell.
-    private int getNumAdjacentFires(Cell cell) {
-        int total = 0;
-        if (currentGrid.getNeighborUp(cell) != null && currentGrid.getNeighborUp(cell).getState() == 2) {
-            total ++;
-        }
-        if (currentGrid.getNeighborDown(cell) != null && currentGrid.getNeighborDown(cell).getState() == 2) {
-            total ++;
-        }
-        if (currentGrid.getNeighborLeft(cell) != null && currentGrid.getNeighborLeft(cell).getState() == 2) {
-            total ++;
-        }
-        if (currentGrid.getNeighborRight(cell) != null && currentGrid.getNeighborRight(cell).getState() == 2) {
-            total ++;
-        }
-        return total;
-    }
-
 }

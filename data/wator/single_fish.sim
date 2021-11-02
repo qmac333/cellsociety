@@ -6,3 +6,6 @@ InitialStates=data/wator/single_fish.csv
 InitialEnergy=3
 ReproductionTime=2
 EnergyPerFish=2
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Square

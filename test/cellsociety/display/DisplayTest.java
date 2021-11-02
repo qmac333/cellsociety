@@ -69,6 +69,7 @@ public class DisplayTest extends DisplayApplication {
         TimeUnit.SECONDS.sleep(10);
 
         Button playButton = lookup("Play").query();
+
         clickOn(playButton);
 
         TimeUnit.SECONDS.sleep(5);

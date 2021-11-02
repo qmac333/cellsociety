@@ -1,0 +1,11 @@
+Type=Wator
+Title=One Shark Multiple Fish
+Author=Quentin MacFarlane
+Description=There is a single shark trying to eat multiple fish
+InitialStates=data/wator/one_shark_multiple_fish.csv
+InitialEnergy=2
+ReproductionTime=4
+EnergyPerFish=2
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Square

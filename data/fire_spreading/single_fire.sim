@@ -4,3 +4,6 @@ Author=Alexis
 Description=A single piece of fire at the center of the map
 InitialStates=data/fire_spreading/single_fire.csv
 ProbCatch=0.3
+GridType=InfiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=Triangle

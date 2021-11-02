@@ -3,6 +3,9 @@ package cellsociety.logic.simulations;
 
 import cellsociety.errors.MissingSimulationArgumentError;
 import cellsociety.logic.grid.Cell;
+import cellsociety.logic.grid.Grid;
+import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +21,8 @@ import java.util.Map;
  */
 public class GameOfLife extends Simulation {
 
-    public GameOfLife(int[][] grid, Map<String, String> metadata) throws MissingSimulationArgumentError {
-        super(grid, metadata);
+    public GameOfLife(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) throws MissingSimulationArgumentError {
+        super(grid,np, metadata);
         setDefaultValue(1);
     }
 
@@ -29,15 +32,15 @@ public class GameOfLife extends Simulation {
     @Override
     protected void updateNextGridFromCell(Cell cell) {
 
-        List<Cell> neighbors = currentGrid.getNeighbors_Eight(cell);
-        neighbors.removeIf(e->e.getState() == 0);
+        List<Cell> neighbors = getGrid().getNeighbors(cell, getNeighborhoodPattern());
+        neighbors.removeIf(e->e == null || e.getCurrentState() == 0);
 
         if (neighbors.size() == 2) {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), cell.getState());
+            getGrid().changeCell(cell, cell.getCurrentState(), cell.getAltStates());
         } else if (neighbors.size() == 3) {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), 1);
+            getGrid().changeCell(cell, 1, cell.getAltStates());
         } else {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), 0);
+            getGrid().changeCell(cell, 0, cell.getAltStates());
         }
     }
 

@@ -4,3 +4,6 @@ Author=Alexis
 Description=Two lines of 1's and 2's (different agents)
 InitialStates=data/segregation_model/lines.csv
 SatisfactionRate=0.01
+GridType=FiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=Square

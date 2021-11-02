@@ -3,4 +3,6 @@ Title=Light Weight Ship
 Author=Alexis
 Description=A type of glider that resembles a light weight spaceship, "YOU CAN'T TELL ME THAT'S NOT A DUCK" - Alexis
 InitialStates=data/game_of_life/light_weight_ship.csv
-
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Hexagon

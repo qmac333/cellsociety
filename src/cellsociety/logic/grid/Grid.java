@@ -1,350 +1,187 @@
 package cellsociety.logic.grid;
 
-import java.util.ArrayList;
+import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
+import cellsociety.logic.shapes.ShapeManager;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
+import java.util.Map;
 
 /**
- * A class that keeps a grid of cells and is able to track their
- * states and positions. Also has the ability to find neighboring cells.
+ * An abstract implementation of a grid. It contains a map of cells and
+ * the ability to find neighboring cells. Also has methods to get, move, or
+ * set cells.
  *
  * @author William Convertino
- * @author Alexis Cruz
  *
- * @since 0.0.1
+ * @since 0.0.3
  */
-public class Grid {
+public abstract class Grid {
 
-    //An array of all the cells in the grid.
-    private Cell[][] cells;
+  //A map of the cells in the grid.
+  private Map<Coordinate, Cell> myCells;
 
-    //The height of the grid.
-    private int height;
+  //The shape manager of the grid - determines how the cell's interact.
+  private ShapeManager myShapeManager;
 
-    //The width of the grid.
-    private int width;
 
-    Stack<Cell> emptyCells = new Stack<>();
+  //The size of the grid.
+  private int height, width;
 
-    /**
-     * Constructs a grid with the specified height and width, and
-     * initializes all the states to 0.
-     *
-     * @param height the height of the grid (the number of rows).
-     * @param width the width of the grid (the number of columns).
-     */
-    public Grid(int height, int width) {
-        initializeCells(height, width, 0);
-        getCurrentEmptyCells();
+  /**
+   * Constructs a new grid with a specified array of states
+   *
+   * @param states
+   * @param shapeManager
+   */
+  public Grid (int[][] states, ShapeManager shapeManager) {
+    this.myShapeManager = shapeManager;
+    initializeGrid(states);
+  }
+
+  //Initializes the grid using a 2D array of states.
+  private void initializeGrid(int[][] states) {
+    this.myCells = new HashMap<>();
+    this.height = states.length;
+    this.width = states[0].length;
+    for (int r = 0; r < states.length; r++) {
+      for (int c = 0; c < states[0].length; c++) {
+        addCellIfAbsent(r,c,states[r][c]);
+      }
     }
+  }
 
-    /**
-     * Constructs a grid with the specified height and width, and
-     * initializes all the states to the specified value.
-     *
-     * @param height the height of the grid (the number of rows).
-     * @param width the width of the grid (the number of columns).
-     * @param initialValue the state to which the cells should be initialized.
-     */
-    public Grid(int height, int width, int initialValue) {
-
-        initializeCells(height, width, initialValue);
-        getCurrentEmptyCells();
+  /**
+   * Adds a cell to the grid at the specified location with the specified
+   * state, if it does not already exist.
+   *
+   * @param r the row coordinate of the new cell.
+   * @param c the column coordinate of the new cell.
+   * @param state the state of the new cell.
+   */
+  public void addCellIfAbsent(int r, int c, int state) {
+    Coordinate newCell = new Coordinate(r,c);
+    for(Coordinate cell : myCells.keySet()){
+      if(cell == newCell){
+        return;
+      }
     }
+    myCells.putIfAbsent(new Coordinate(r,c), new Cell(r,c,state));
+  }
 
-    /**
-     *  Constructs a grid using the size and values provided by a 2D integer array.
-     *
-     * @param initialValues a 2D array containing the values of the desired grid.
-     */
-    public Grid(int[][] initialValues) {
+  /**
+   * Returns the value at the specified coordinates, or null if
+   * there is no cell at the coordinates.
+   *
+   * @param r the row coordinate of the cell to get.
+   * @param c the column coordinate of the cell to get.
+   * @return the cell at coordinates (r,c), or null if it does not exist.
+   */
+  public Cell getCell(int r, int c) {
+    Coordinate cellCoords = new Coordinate(r,c);
+    return myCells.getOrDefault(cellCoords, null);
+  }
 
-        initializeCells(initialValues.length, initialValues[0].length, 0);
-        for (int r= 0; r < initialValues.length; r++) {
-            for (int c = 0; c < initialValues[0].length; c++) {
-                this.cells[r][c] = new Cell(r,c,initialValues[r][c]);
-            }
-        }
-        getCurrentEmptyCells();
+  /**
+   * Given a cell and a neighborhood pattern, returns a list of the neighboring cells.
+   *
+   * @param cell the cell whose neighbors we find.
+   * @param myPattern the neighborhood pattern that dictates what is considered a neighbord.
+   * @return a list of the neighboring cells.
+   */
+  public abstract List<Cell> getNeighbors(Cell cell, NeighborhoodPattern myPattern);
+
+  /**
+   * Generates a list of coordinates for the potentially neighboring cells.
+   *
+   * @param c the cell whose neighbors' coordinates are generated.
+   * @param myPattern the neighborhood pattern to use in order to find the neighbors.
+   * @return a list of coordinates for the potentially neighboring cells.
+   */
+  protected List<Coordinate> generateNeighborCoordinates(Cell c, NeighborhoodPattern myPattern) {
+    return myPattern.getNeighborhoodGroup(c.getCoordinates(),myShapeManager);
+  }
+
+  /**
+   *  Moves a cell to the specified location.
+   *
+   * @param sourceCell the cell to move.
+   * @param r the row to move the cell.
+   * @param c the column to move the cell.
+   */
+  public void moveCellTo(Cell sourceCell, int r, int c){
+    moveCellTo(sourceCell, getCell(r,c));
+  }
+
+  /**
+   *  Moves a cell's states to another cell.
+   *
+   * @param sourceCell the cell to move.
+   * @param targetCell the destination where the cell should move.
+   */
+  public void moveCellTo(Cell sourceCell, Cell targetCell){
+    targetCell.setNextState(sourceCell.getCurrentState());
+    targetCell.setNextAltStates(sourceCell.getAltStates());
+    sourceCell.setNextState(0);
+    sourceCell.setNextAltStates(new HashMap<>());
+  }
+
+  public void changeCell(Cell c, int state, Map<String, Integer> currentAltStates){
+    myCells.get(c.getCoordinates()).setNextState(state);
+    myCells.get(c.getCoordinates()).setNextAltStates(currentAltStates);
+  }
+
+  public void changeCell(Coordinate c, int state){
+    myCells.get(c).setNextState(state);
+  }
+
+  /**
+   * Updates each cell in the grid. This sets their current
+   * states equal to their next states, and sets their
+   * next states equal to 0.
+   */
+  public void updateCells() {
+    for (Coordinate coord: myCells.keySet()) {
+      Cell c = myCells.get(coord);
+      c.setCurrentState(c.getNextState());
+      c.setAltStates(c.getNextAltStates());
+      c.setNextState(0);
+      c.setNextAltStates(new HashMap<>());
     }
+  }
 
+  public void updateCell(Coordinate c) {
+      Cell cell = myCells.get(c);
+      cell.setCurrentState(cell.getNextState());
+      cell.setAltStates(cell.getNextAltStates());
+      cell.setNextState(0);
+      cell.setNextAltStates(new HashMap<>());
+  }
 
-    //Creates the cells array and initializes each of them to the specified value.
-    private void initializeCells(int height, int width, int value) {
-        this.cells = new Cell[height][width];
-        this.width = width;
-        this.height = height;
-        for (int r = 0; r < height; r++) {
-            for (int c = 0; c < width; c++) {
-                cells[r][c] = new Cell(r,c,value);
-            }
-        }
-    }
+  public List<Cell> getCellsToUpdate() {
 
-    /**
-     * Replaces the specified cell location in the grid with the specified cell.
-     *
-     * @param r the row of the replaced cell.
-     * @param c the column of the replaced cell.
-     * @param cell the cell to replace.
-     */
-    public void setCell(int r, int c, Cell cell) {
-        cell.setPosition(r,c);
-        cells[r][c] = cell;
-    }
+    return new LinkedList<>(myCells.values());
 
-    /**
-     * Gets the state of the cell at the specified position.
-     *
-     * @param r the row of the desired cell
-     * @param c the column of the desired cell
-     * @return the value held within that cell
-     */
-    public int getCellState(int r, int c) {
-        return cells[r][c].getState();
-    }
+  }
 
-    /**
-     * sets the state of the cell at the specified position.
-     *
-     * @param r the row of the desired cell
-     * @param c the column of the desired cell
-     * @param state the state to be set
-     */
-    public void setCellState(int r, int c, int state) {
-        cells[r][c].setState(state);
-    }
+  public void setMyCells(Map<Coordinate, Cell> myCells) {
+    this.myCells = myCells;
+  }
 
-    /**
-     * Finds and returns the neighbor above the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor above the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborUp(Cell c) {
-        if (c.getRow() <= 0 || c.getRow() > height - 1) {
-            return null;
-        }
-        return cells[c.getRow()-1][c.getColumn()];
-    }
+  public int getHeight() {
+    return height;
+  }
 
-    /**
-     * Finds and returns the neighbor below the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor below the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborDown(Cell c) {
-        if (c.getRow() < 0 || c.getRow() > height - 2) {
-            return null;
-        }
-        return cells[c.getRow()+1][c.getColumn()];
-    }
+  public void setHeight(int height) {
+    this.height = height;
+  }
 
-    /**
-     * Finds and returns the neighbor to the left of the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor to the left of the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborLeft(Cell c) {
-        if (c.getColumn() <= 0 || c.getColumn() > width - 1) {
-            return null;
-        }
-        return cells[c.getRow()][c.getColumn()-1];
-    }
+  public int getWidth() {
+    return width;
+  }
 
-    /**
-     * Finds and returns the neighbor to the right of the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor to the right of the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborRight(Cell c) {
-        if (c.getColumn() < 0 || c.getColumn() > width - 2) {
-            return null;
-        }
-        return cells[c.getRow()][c.getColumn()+1];
-    }
+  public void setWidth(int width) {
+    this.width = width;
+  }
 
-    /**
-     * Finds and returns the neighbor up and to the left of the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor up and to the left of the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborUpLeft(Cell c) {
-        if (getNeighborLeft(c) == null || getNeighborUp(c) == null) {
-            return null;
-        }
-        return cells[c.getRow()-1][c.getColumn()-1];
-    }
-
-    /**
-     * Finds and returns the neighbor up and to the right of the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor up and to the right of the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborUpRight(Cell c) {
-        if (getNeighborRight(c) == null || getNeighborUp(c) == null) {
-            return null;
-        }
-        return cells[c.getRow()-1][c.getColumn()+1];
-    }
-
-    /**
-     * Finds and returns the neighbor down and to the left of the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor down and to the left of the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborDownLeft(Cell c) {
-        if (getNeighborLeft(c) == null || getNeighborDown(c) == null) {
-            return null;
-        }
-        return cells[c.getRow()+1][c.getColumn()-1];
-    }
-
-    /**
-     * Finds and returns the neighbor down and to the right of the specified cell,
-     * or null if it does not exist.
-     *
-     * @param c the cell whose neighbor we find.
-     * @return the neighbor down and to the right of the specified cell, or null if
-     * it does not exist.
-     */
-    public Cell getNeighborDownRight(Cell c) {
-        if (getNeighborRight(c) == null || getNeighborDown(c) == null) {
-            return null;
-        }
-        return cells[c.getRow()+1][c.getColumn()+1];
-    }
-
-    /**
-     * Returns a list of the 4 directly adjacent cells, with
-     * any null neighbors removed.
-     *
-     * @param c the cell whose neighbors this method returns.
-     * @return a list of the 4 directly adjacent cells, with
-     * any null neighbors removed.
-     */
-    public List<Cell> getNeighbors_Four(Cell c) {
-        List<Cell> myNeighbors = new ArrayList<>();
-        myNeighbors.add(getNeighborUp(c));
-        myNeighbors.add(getNeighborDown(c));
-        myNeighbors.add(getNeighborLeft(c));
-        myNeighbors.add(getNeighborRight(c));
-        myNeighbors.removeIf(e -> e==null);
-        return myNeighbors;
-    }
-
-    /**
-     * Returns a list of the 8 directly adjacent cells, with
-     * any null neighbors removed.
-     *
-     * @param c the cell whose neighbors this method returns.
-     * @return a list of the 8 directly adjacent cells, with
-     * any null neighbors removed.
-     */
-    public List<Cell> getNeighbors_Eight(Cell c) {
-        List<Cell> myNeighbors = getNeighbors_Four(c);
-        myNeighbors.add(getNeighborUpLeft(c));
-        myNeighbors.add(getNeighborDownLeft(c));
-        myNeighbors.add(getNeighborUpRight(c));
-        myNeighbors.add(getNeighborDownRight(c));
-        myNeighbors.removeIf(e -> e==null);
-        return myNeighbors;
-    }
-
-    /**
-     * @see Object#toString()
-     */
-    @Override
-    public String toString () {
-        StringBuilder ret = new StringBuilder();
-        for (int c = 0; c < width; c++) {
-            for (int r = 0; r < height; r++) {
-                ret.append(cells[r][c].getState());
-            }
-            ret.append("\n");
-        }
-        return ret.toString();
-    }
-
-    /**
-     * Returns the width of the grid.
-     *
-     * @return the width of the grid.
-     */
-    public int getWidth() {
-        return width;
-    }
-
-    /**
-     * Returns the height of the grid.
-     *
-     * @return the height of the grid.
-     */
-    public int getHeight() {
-        return height;
-    }
-
-    /**
-     * Returns the 2d array of cells.
-     *
-     * @return the 2d array of cells.
-     */
-    public Cell[][] getCells(){
-        return cells;
-    }
-
-    public int[][] getCellStates() {
-        int[][] states = new int[height][width];
-        for (int r = 0; r < height; r++) {
-            for (int c = 0; c < width; c++) {
-                states[r][c] = cells[r][c].getState();
-            }
-        }
-        return states;
-    }
-
-    /**
-     * Returns the cell at the specified location.
-     *
-     * @param r the row of the desired cell.
-     * @param c the column of the desired cell.
-     * @return the cell at the specified location.
-     */
-    public Cell getCell(int r, int c) {
-        return cells[r][c];
-    }
-
-    public Stack<Cell> getCurrentEmptyCells(){
-        for (int r = 0; r < height; r++) {
-            for (int c = 0; c < width; c++) {
-                if(cells[r][c].getState() == 0)
-                    emptyCells.add(cells[r][c]);
-            }
-        }
-        return emptyCells;
-    }
-
-    public Cell getNextEmptyCell(){
-        return emptyCells.peek();
-    }
 }

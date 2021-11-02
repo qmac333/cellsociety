@@ -4,3 +4,6 @@ Author=William Convertino
 Description=A dynamic test of the model.
 InitialStates=data/segregation_model/frantic.csv
 SatisfactionRate=0.9
+GridType=FiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=Square

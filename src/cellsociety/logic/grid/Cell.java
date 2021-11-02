@@ -1,82 +1,147 @@
 package cellsociety.logic.grid;
 
+import cellsociety.logic.grid.Coordinate;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Objects;
+
 /**
- * A class that keeps track of the state and position of one square
- * in the grid.
+ * A datatype to represent a cell in a grid. This class keeps track of a
+ * cell's row, column, current and next state, and current and next alternate state.
  *
  * @author William Convertino
+ * @author Quentin MacFarlane
  *
- * @since 0.0.2
+ * @since 0.0.3
  */
 public class Cell {
 
-  //The state of the cell.
-  protected int state;
+  //The row and column coordinate of the current cell.
+  private Coordinate myCoordinates;
 
-  //The row and column of this cell in the grid.
-  protected int row,column;
+  //The current state of the cell.
+  private int currentState;
+
+  //The next state of the cell.
+  private int nextState;
+
+  //Map of alternate states of a cell, useful for a variety of abstract implementations.
+  private Map<String, Integer> altStates;
+
+  //The next alternate states of a cell
+  private Map<String, Integer> nextAltStates;
 
   /**
-   * Constructs a cell at the specified position with the
-   * specified state.
+   * Constructs a new Cell at the specified coordinates with the given
+   * state and alternate state.
    *
-   * @param row the row where the cell is located.
-   * @param column the column where the cell is located.
-   * @param state the state of the cell.
+   * @param r the row of the cell.
+   * @param c the column of the cell.
+   * @param state the current state of the cell.
    */
-  public Cell(int row, int column, int state) {
-    this.row = row;
-    this.column = column;
-    this.state = state;
+  public Cell(int r, int c, int state) {
+    this.myCoordinates = new Coordinate(r,c);
+    this.currentState = state;
+    this.nextState = 0;
+  }
+
+  public Coordinate getCoordinates() {
+    return myCoordinates;
   }
 
   /**
-   * Returns the state of the cell.
+   * Returns the current state of the cell.
    *
-   * @return the state of the cell.
+   * @return the current state of the cell.
    */
-  public int getState() {
-    return state;
+  public int getCurrentState() {
+    return this.currentState;
   }
 
   /**
-   * Sets the state of the cell.
+   * Sets the value of this cell's state to the specified state.
    *
-   * @param state the state to which this cell should be set.
+   * @param state the new state of this cell.
    */
-  public void setState(int state) {
-    this.state = state;
+  public void setCurrentState(int state) {
+    this.currentState = state;
   }
 
   /**
-   * Returns the row where this cell is located.
+   * Returns the next state of the cell.
    *
-   * @return the row where this cell is located.
+   * @return the next state of the cell.
    */
-  public int getRow() {
-    return row;
+  public int getNextState() {
+    return this.nextState;
+  }
+
+  /**
+   * Sets the value of this cell's next state to the specified state.
+   *
+   * @param state the next state of this cell.
+   */
+  public void setNextState(int state) {
+    this.nextState = state;
+  }
+
+  public Map<String, Integer> getAltStates() {
+    return altStates;
+  }
+
+  public void setAltStates(Map<String, Integer> newStates) {
+    altStates = newStates;
+  }
+
+  public void addState(String state, int value) {
+    if (this.altStates == null) {
+      altStates = new HashMap<>();
+    }
+    altStates.put(state, value);
+  }
+
+  public Map<String, Integer> getNextAltStates() {
+    return nextAltStates;
+  }
+
+  public void setNextAltStates(Map<String, Integer> updatedStates) {
+    nextAltStates = updatedStates;
+  }
+
+  public void addToNextState(String state, int value) {
+    if (this.nextAltStates == null) {
+      nextAltStates = new HashMap<>();
+    }
+    nextAltStates.put(state, value);
   }
 
 
   /**
-   * Returns the column where this cell is located.
-   *
-   * @return the column where this cell is located.
+   * @see Object#equals(Object)  
    */
-  public int getColumn() {
-    return column;
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Cell)) {
+      return false;
+    }
+    Cell c = (Cell) o;
+    boolean altStatesMatch = checkAltStatesEqual(this.getAltStates(), c.getAltStates());
+    return this == o || (this.currentState == c.currentState && altStatesMatch
+        && this.getCoordinates().equals(c.getCoordinates()));
   }
 
-  /**
-   * Sets the row and column of the cell to the
-   * specified values.
-   *
-   * @param r the new row of the cell.
-   * @param c the new column of the cell.
-   */
-  public void setPosition(int r, int c) {
-    this.row = r;
-    this.column = c;
+  private boolean checkAltStatesEqual(Map<String, Integer> altStatesOne, Map<String, Integer> altStatesTwo) {
+    if (altStatesOne == null && altStatesTwo == null) {
+      return true;
+    } else if (altStatesOne == null || altStatesTwo == null) {
+      return false;
+    } else if (altStatesOne.keySet().equals(altStatesTwo.keySet()) &&
+            new ArrayList<>(altStatesOne.values()).equals(new ArrayList<>(altStatesTwo.values()))) {
+      return true;
+    }
+    return false;
   }
 
 }

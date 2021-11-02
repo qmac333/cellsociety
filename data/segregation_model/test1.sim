@@ -4,3 +4,6 @@ Author=Tim
 Description=Test as shown in the assignment page
 InitialStates=data/segregation_model/test1.csv
 SatisfactionRate=0.01
+GridType=FiniteGrid
+Neighborhood=CardinalNeighborPattern
+Shape=Square

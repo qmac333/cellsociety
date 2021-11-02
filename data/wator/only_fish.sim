@@ -1,0 +1,11 @@
+Type=Wator
+Title=Only Fish
+Author=Quentin MacFarlane
+Description=The grid is made up of only fish
+InitialStates=data/wator/only_fish.csv
+InitialEnergy=3
+ReproductionTime=4
+EnergyPerFish=2
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Square

@@ -31,21 +31,7 @@ class ControllerTest extends DukeApplicationTest {
     @Test
     void loadFile() {
 
-        try {
-            File workingFile = new File("./data/game_of_life/glider.sim");
-            testController.loadFile(workingFile);
-            assertTrue(true);
-        } catch (Exception e) {
-            fail();
-        }
 
-        try {
-            File nonWorkingFile = new File("./data/game_of_life/blinkers.cvs");
-            testController.loadFile(nonWorkingFile);
-            fail();
-        } catch (Exception e) {
-            assertTrue(true);
-        }
 
     }
 

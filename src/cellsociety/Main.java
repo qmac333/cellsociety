@@ -71,7 +71,6 @@ public class Main extends Application {
     private void initializeWindow(Stage myStage) {
         cellSocietyScene = new Scene(new Group(), WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
         myStage.setScene(cellSocietyScene);
-        myStage.show();
     }
 
 }

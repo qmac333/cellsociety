@@ -2,13 +2,15 @@ package cellsociety.logic.simulations;
 
 import cellsociety.errors.MissingSimulationArgumentError;
 
-
 import cellsociety.logic.grid.Cell;
 import cellsociety.logic.grid.Grid;
-import cellsociety.logic.grid.WaTorCell;
-import cellsociety.logic.grid.*;
+import cellsociety.logic.neighborhoodpatterns.NeighborhoodPattern;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Collections;
 
 /**
  * @author Quentin MacFarlane
@@ -17,159 +19,200 @@ import java.util.*;
  */
 public class WaTorWorld extends Simulation {
 
+    public static final String LIFE = "Life";
+    public static final String ENERGY = "Energy";
+    public static final int WATER_STATE = 0;
+    public static final int FISH_STATE = 1;
+    public static final int SHARK_STATE = 2;
+
     private int initEnergy;
     private int reproductionTime;
     private int energyPerFish;
 
-    public WaTorWorld(int[][] grid, Map<String, String> metadata) throws MissingSimulationArgumentError {
-        super(grid, metadata);
-        initEnergy = Integer.parseInt(metadata.get("InitialEnergy"));
-        reproductionTime = Integer.parseInt(metadata.get("ReproductionTime"));
-        energyPerFish = Integer.parseInt(metadata.get("EnergyPerFish"));
-        changeToWatorCells(); // changes the grid to use WaTorCells instead of regular Cells
+    /**
+     * Constructs a new WaTorWorld Simulation with a specified starting Grid and a Map of simulation-specific data
+     * values.
+     *
+     * @param grid     the starting grid of the simulation.
+     * @param metadata the user-specified values used by the simulation.
+     * @throws MissingSimulationArgumentError if the metadata is missing a required argument for the
+     *                                        simulation.
+     */
+    public WaTorWorld(Grid grid, NeighborhoodPattern np, Map<String, String> metadata) throws MissingSimulationArgumentError {
+        super(grid, np, metadata);
+        this.initEnergy = Integer.parseInt(metadata.get("InitialEnergy"));
+        this.reproductionTime = Integer.parseInt(metadata.get("ReproductionTime"));
+        this.energyPerFish = Integer.parseInt(metadata.get("EnergyPerFish"));
+        setDefaultValue(2);
     }
 
-    private void changeToWatorCells() {
-        // setting the cells with '1' to a WaTorCell w/ a Fish object and the cells with '2' to a WaTorCell w/ a Shark object
-        for (int r = 0; r < getGrid().getHeight(); r++) {
-            for (int c = 0; c < getGrid().getWidth(); c++) {
-                if (getGrid().getCell(r,c).getState() == 1) { // if the cell's state is a 1 (meaning it's a fish)
-                    getGrid().setCell(r, c, new WaTorCell(r,c,getGrid().getCellState(r,c), new Fish()));
-                }
-                else if (getGrid().getCell(r,c).getState() == 2) { // if the cell's state is a 2 (meaning it's a shark)
-                    getGrid().setCell(r, c, new WaTorCell(r,c,getGrid().getCellState(r,c), new Shark(initEnergy)));
-                }
-            }
-        }
-    }
-
+    /**
+     * @see Simulation#updateNextGridFromCell(Cell)
+     */
     @Override
     protected void updateNextGridFromCell(Cell cell) {
-        List<Cell> neighbors = currentGrid.getNeighbors_Four(cell);
-        List<Cell> neighborsFish = currentGrid.getNeighbors_Four(cell);
-        List<Cell> neighborsEmpty = currentGrid.getNeighbors_Four(cell);
-
-        // if the cell right now is just water, or if the original cell was just water, do nothing
-        if (cell.getState() == 0) {
+        if (cell.getCurrentState() == WATER_STATE) {
             return;
-        } else if (cell.getState() == 1) { // if the cell is a fish
-            // increase the time survived for the fish by 1
-            ((WaTorCell) cell).getAnimal().setTimeSurvived(((WaTorCell) cell).getAnimal().getTimeSurvived() + 1);
+        } else if (cell.getCurrentState() == FISH_STATE) {
+            List<Cell> neighbors = getGrid().getNeighbors(cell, getNeighborhoodPattern());
+            neighbors.removeIf(Objects::isNull);
+            incrementFishLife(cell);
 
-            neighbors.removeIf(e->e.getState() == 1 || e.getState() == 2); // find only the empty water around the fish
-            System.out.println("NEIGHBORS");
-            for (Cell c : neighbors) {
-                System.out.println("row: "+c.getRow()+" col: "+c.getColumn());
-            }
-
-            // moves the fish if it can move
+            neighbors.removeIf(e->e.getCurrentState() == FISH_STATE || e.getCurrentState() == SHARK_STATE);
             moveFish(neighbors, cell);
+        } else if (cell.getCurrentState() == SHARK_STATE) {
+            incrementSharkLife(cell);
 
-        } else if (cell.getState() == 2) { // if the cell is a shark
-            neighborsFish.removeIf(e->e.getState() == 0 || e.getState() == 2); // find only the fish around the shark
+            List<Cell> neighborsFish = getGrid().getNeighbors(cell, getNeighborhoodPattern());
+            neighborsFish.removeIf(Objects::isNull);
+            neighborsFish.removeIf(e->e.getCurrentState() == WATER_STATE || e.getCurrentState() == SHARK_STATE);
 
-            // if there are no fish around the shark, look for empty water
-            neighborsEmpty.removeIf(e->e.getState() == 1 || e.getState() == 2); // find the empty water around the shark
+            List<Cell> neighborsEmpty = getGrid().getNeighbors(cell, getNeighborhoodPattern());
+            neighborsEmpty.removeIf(Objects::isNull);
+            neighborsEmpty.removeIf(e->e.getCurrentState() == FISH_STATE || e.getCurrentState() == SHARK_STATE);
 
-            // eats a fish, if it can, or moves to empty water spot
             eatFishOrMove(neighborsFish, neighborsEmpty, cell);
-
-            Shark currentShark = ((Shark) ((WaTorCell) cell).getAnimal());
-
-            // shark loses one unit of energy every tick of the program
-            currentShark.setEnergy(currentShark.getEnergy() - energyPerFish);
-
-            // updates the shark based on how much energy it has
-            checkEnergy(currentShark, neighborsEmpty, cell);
         }
     }
 
+    /**
+     * Increments time a fish has been alive, starts at 1 if the fish has just been created
+     * @param cell the current fish cell we are iterating over
+     */
+    private void incrementFishLife(Cell cell) {
+        if (cell.getAltStates() == null) {
+            cell.addState(LIFE, 1);
+        } else {
+            cell.addState(LIFE, cell.getAltStates().getOrDefault(LIFE,0) + 1);
+        }
+    }
+
+    /**
+     * Increments time a shark has been alive, starts at 1 and creates energy if the shark has just been created
+     * @param cell the current shark cell we are iterating over
+     */
+    private void incrementSharkLife(Cell cell) {
+        if (cell.getAltStates() == null) {
+            cell.addState(LIFE, 1);
+            cell.addState(ENERGY, initEnergy);
+        } else {
+            cell.addState(LIFE, cell.getAltStates().getOrDefault(LIFE, 0) + 1);
+        }
+    }
+
+    /**
+     * Moves the fish if there is an empty water spot next to the fish
+     * @param neighbors a list of the neighbor cells of the cell we are iterating over
+     * @param cell the cell we are iterating over
+     */
     private void moveFish(List<Cell> neighbors, Cell cell) {
-        if (neighbors.size() > 0) { // if there is a (water) spot for the fish to move
-            // first, figure out where to move the fish (random spot from the adjacent water spots)
+        boolean reproduce = checkIfReproduce(cell);
+        neighbors.removeIf(e->e.getNextState() != WATER_STATE);
+
+        if (neighbors.size() > 0) {
             Collections.shuffle(neighbors);
-
-            // check to see if the nextGrid has an empty water spot for the cell we want to move to
-            if (nextGrid.getCell(neighbors.get(0).getRow(), neighbors.get(0).getColumn()).getState() == 0) {
-                // move the fish to the spot identified
-                System.out.println("next row: "+neighbors.get(0).getRow());
-                System.out.println("next col: "+neighbors.get(0).getColumn());
-                nextGrid.setCell(neighbors.get(0).getRow(), neighbors.get(0).getColumn(), ((WaTorCell) cell));
-                // sets the previous spot where the fish just was to empty water
-//                nextGrid.setCellState(cell.getRow(), cell.getColumn(), 0);
-
-                // reproduce a new fish if the fish has survived for "reproductionTime" amount of time
-                if (((WaTorCell) cell).getAnimal().getTimeSurvived() == reproductionTime) {
-                    System.out.println("row of new fish: "+cell.getRow());
-                    System.out.println("col of new fish: "+cell.getColumn());
-
-                    nextGrid.setCell(cell.getRow(), cell.getColumn(),
-                            new WaTorCell(cell.getRow(),cell.getColumn(),
-                                    getGrid().getCellState(cell.getRow(),cell.getColumn()), new Fish()));
-                }
-            }
-        }
-        else { // if the fish cannot move
-            nextGrid.setCell(cell.getRow(), cell.getColumn(), (WaTorCell) cell);
+            getGrid().moveCellTo(cell, neighbors.get(0));
+            cell.setAltStates(new HashMap<>());
+            reproduceFish(reproduce, cell);
+        } else {
+            getGrid().changeCell(cell, cell.getCurrentState(), cell.getAltStates());
         }
     }
 
+    /**
+     * Checks to see if the current animal is eligible to reproduce or not
+     * @param cell current animal cell we are iterating over
+     * @return boolean telling program whether to reproduce or not
+     */
+    private boolean checkIfReproduce(Cell cell) {
+        if (cell.getAltStates().get(LIFE) == reproductionTime) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Creates a new fish at the current cell's position if the old fish has survived for long enough
+     * @param reproduce boolean to tell whether to reproduce or not
+     * @param cell the current fish cell we are iterating over
+     */
+    private void reproduceFish(boolean reproduce, Cell cell) {
+        if (reproduce) {
+            getGrid().changeCell(cell, FISH_STATE, new HashMap<>());
+            cell.addState(LIFE, 1);
+            cell.setNextAltStates(cell.getAltStates());
+            cell.setAltStates(new HashMap<>());
+        }
+    }
+
+    /**
+     * Creates a new shark at the current cell's position if the old shark has survived for long enough
+     * @param reproduce boolean to tell whether to reproduce or not
+     * @param cell the current shark cell we are iterating over
+     */
+    private void reproduceShark(boolean reproduce, Cell cell) {
+        if (reproduce) {
+            getGrid().changeCell(cell, SHARK_STATE, new HashMap<>());
+            cell.addToNextState(LIFE, 1);
+            cell.addToNextState(ENERGY, initEnergy);
+        }
+    }
+
+    /**
+     * Shark method to determine whether to eat a fish or move to an empty water spot or to not move at all
+     * @param neighborsFish the list of fish cells around the shark cell
+     * @param neighborsEmpty the list of water cells around the shark cell
+     * @param cell the current shark cell we are iterating over
+     */
     private void eatFishOrMove(List<Cell> neighborsFish, List<Cell> neighborsEmpty, Cell cell) {
+        boolean reproduce = checkIfReproduce(cell);
+        neighborsEmpty.removeIf(e->e.getNextState() != WATER_STATE);
+
         if (neighborsFish.size() > 0) { // if there is a fish next to the shark
-            // first, figure out which fish to eat
             Collections.shuffle(neighborsFish);
 
-            // checking to see if a shark has occupied the next spot already, or if the fish already moved away
-            if (nextGrid.getCell(neighborsFish.get(0).getRow(), neighborsFish.get(0).getColumn()).getState() != 2
-                    || nextGrid.getCell(neighborsFish.get(0).getRow(), neighborsFish.get(0).getColumn()).getState() == 0) {
-                // move the shark to the spot identified
-                nextGrid.setCell(neighborsFish.get(0).getRow(), neighborsFish.get(0).getColumn(), ((WaTorCell) cell));
-                // sets the previous spot where the shark just was to empty water
-//                nextGrid.setCellState(cell.getRow(), cell.getColumn(), 0);
+            int prevEnergy = cell.getAltStates().get(ENERGY);
+            cell.addState(ENERGY, prevEnergy + energyPerFish - 1);
+            getGrid().moveCellTo(cell, neighborsFish.get(0));
+            neighborsFish.get(0).setCurrentState(0);
+            neighborsFish.get(0).setAltStates(new HashMap<>());
+            reproduceShark(reproduce, cell);
 
-                Shark currentShark = ((Shark) ((WaTorCell) cell).getAnimal());
-                // increase the energy for the shark by "energy" amount
-                currentShark.setEnergy(currentShark.getEnergy() + energyPerFish);
-            }
-        }
-        else if (neighborsEmpty.size() > 0) { // if there is an empty water spot next to the shark
-            // first, figure out which water spot to move to
+        } else if (neighborsEmpty.size() > 0) { // if there is an empty water spot next to the shark
             Collections.shuffle(neighborsEmpty);
+            decrementEnergyOnMove(cell, neighborsEmpty);
+            reproduceShark(reproduce, cell);
 
-            // check to see if the nextGrid has an empty water spot for the cell we want to move to
-            if (nextGrid.getCell(neighborsFish.get(0).getRow(), neighborsFish.get(0).getColumn()).getState() == 0) {
-                // move the shark to the spot identified
-                nextGrid.setCell(neighborsEmpty.get(0).getRow(), neighborsEmpty.get(0).getColumn(), ((WaTorCell) cell));
-                // sets the previous spot where the shark just was to empty water
-//                nextGrid.setCellState(cell.getRow(), cell.getColumn(), 0);
-            }
-        }
-        else { // if there is no fish AND no empty water for the shark to move (basically the shark is surrounded by 4 sharks)
-            nextGrid.setCell(cell.getRow(), cell.getColumn(), (WaTorCell) cell);
+        } else {
+            decrementEnergyOnStay(cell);
         }
     }
 
-    private void checkEnergy(Shark currentShark, List<Cell> neighborsEmpty, Cell cell) {
-        // if the shark ran out of energy and moved, set it to empty water space
-        if (currentShark.getEnergy() == 0 && neighborsEmpty.size() > 0) {
-            nextGrid.setCellState(neighborsEmpty.get(0).getRow(), neighborsEmpty.get(0).getColumn(), 0);
-        }
-        // else if the shark ran out of energy but didn't move, set it to empty water space
-        else if (currentShark.getEnergy() == 0 && neighborsEmpty.isEmpty()) {
-            nextGrid.setCellState(cell.getRow(), cell.getColumn(), 0);
-        }
-        else if (currentShark.getEnergy() != 0){ // if shark didn't run out of energy, increase the time survived by 1
-            // increase the time survived for the shark by 1
-            ((WaTorCell) cell).getAnimal().setTimeSurvived(((WaTorCell) cell).getAnimal().getTimeSurvived() + 1);
-
-            // reproduce a new shark if the shark has survived for "reproductionTime" amount of time
-            if (((WaTorCell) cell).getAnimal().getTimeSurvived() == reproductionTime) {
-                nextGrid.setCell(cell.getRow(), cell.getColumn(),
-                        new WaTorCell(cell.getRow(),cell.getColumn(),
-                                getGrid().getCellState(cell.getRow(),cell.getColumn()), new Shark(initEnergy)));
-            }
+    /**
+     * Reduces the energy of a shark by 1 if it moved
+     * @param cell shark cell we are iterating over
+     */
+    private void decrementEnergyOnMove(Cell cell, List<Cell> neighborsEmpty) {
+        int prevEnergy = cell.getAltStates().get(ENERGY);
+        cell.addState(ENERGY, prevEnergy - 1);
+        if (cell.getAltStates().get(ENERGY) == 0) {
+            getGrid().moveCellTo(cell, cell);
+        } else {
+            getGrid().moveCellTo(cell, neighborsEmpty.get(0));
         }
     }
 
-
+    /**
+     * Reduces the energy of a shark by 1 if it stayed still
+     * @param cell shark cell we are iterating over
+     */
+    private void decrementEnergyOnStay(Cell cell) {
+        int prevEnergy = cell.getAltStates().get(ENERGY);
+        cell.addState(ENERGY, prevEnergy - 1);
+        if (cell.getAltStates().get(ENERGY) == 0) {
+            getGrid().moveCellTo(cell, cell);
+        } else {
+            getGrid().changeCell(cell, cell.getCurrentState(), cell.getAltStates());
+        }
+    }
 }
