@@ -171,7 +171,10 @@ _New Shapes:_ To add a new shape, you start by creating a new ShapeManager class
 how to determine the location of a cell's adjacent cells. You also create a new subclass of Display so that
 the new shape can be accommodated in the front-end.
 
-[TODO: Talk about the display]
+_New Display:_ To accommodate for the new shapes, we made a abstract Display class, and subclasses
+for each shape. This allows implementing a new shape in display as easy as adding a new subclass that 
+represents the new shape. Each Display subclass has different placement offsets and algorithms as different 
+shapes have different geometries that make their positions different in the grid.
 
 #### Easy to Add Features
 Some features which would be easy to add would be 
