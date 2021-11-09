@@ -25,7 +25,7 @@ import javafx.stage.Stage;
  * @author Tim Jang
  * @since 0.0.1
  */
-public class Controller {
+public class Controller{
 
   //The stage of the JFX application.
   private Stage myStage;
