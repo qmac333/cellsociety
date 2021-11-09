@@ -7,7 +7,9 @@ William Convertino - Created the Grid and Cell classes, the base neighborhood an
 Controller and Logic Controller, Error Handling, and the second display. I also created some of the test files, set up
 the button functionality, and contributed heavily to the design of the project.
 
-Tim Jang - 
+Tim Jang - Created the Display classes. Created the different layout methods for
+various displays in subclasses with an abstract display class. Contributed to controller
+and FireSpreader.
 
 Quentin MacFarlane - Created the backend for the WaTorWorld simulation, created the saving file logic and connected it 
 with the controller. Created the English properties files, helped modify and debug the Cell and Grid classes to work 
@@ -135,7 +137,8 @@ to determine what cells are actually available for the simulations use. For exam
 a new cell at that location, while the finite border just returns the valid coordinates' cells.
 
 _New Shapes:_ To add a new shape, you start by creating a new ShapeManager class. This has a group of abstract methods you need to fill out to specify
-how to determine the location of a cell's adjacent cells.
+how to determine the location of a cell's adjacent cells. You also create a new subclass of Display so that
+the new shape can be accommodated in the front-end.
 
 [TODO: Talk about the display]
 
