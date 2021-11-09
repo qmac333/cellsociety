@@ -21,7 +21,7 @@ import javafx.util.Duration;
 public class Main extends Application {
 
     /**The current version of our CellSociety program.**/
-    public static final String CURRENT_VERSION = "0.0.2";
+    public static final String CURRENT_VERSION = "0.0.3";
 
     /**The name of our program's window is {@value #WINDOW_NAME}**/
     public static final String WINDOW_NAME = "Cell Society";

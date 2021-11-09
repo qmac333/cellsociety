@@ -1,0 +1,8 @@
+Type=GameOfLife
+Title=Default
+Author=Quentin MacFarlane
+Description=The initial file to load with hexagon grid.
+InitialStates=data/game_of_life/default.csv
+GridType=FiniteGrid
+Neighborhood=CompleteNeighborPattern
+Shape=Hexagon
